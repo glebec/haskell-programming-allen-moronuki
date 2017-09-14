@@ -3,13 +3,13 @@
 Term | Definition | Example(s)
 -----|------------|-----------
 Datatype | aka "type"; similar to set | `Bool`, `Int`, `Maybe`
-Data Declaration | definition of a datatype, consisting of a type constructor and associated data constructors; use `:i` in GHCi | `data Noise = Bark | Moo`
+Data Declaration | definition of a datatype, consisting of a type constructor and associated data constructors; use `:i` in GHCi | `data Noise = Bark \| Moo`
 Type Constructor | name of the type (must be capitalized) | `Bool`, `Int`
 Data Constructor | a value which inhabits a type | `False`, 3, `GT`
 Type Signature | annotation for function input(s) and output, consisting of typeclasses, type constructors, and arrows; use `:t` in GHCi | `(Ord a, Num a) => a -> IO ()`
 Typeclass | defined later, but as I understand it – types which share common functionality (e.g. all types which are functors support mapping) | `Eq`, `Num`, `Ord`
 Pattern Matching | defining a function by matching on data constructor | `myFunc True = False`
-Sum Type | Disjunction of possible values | `False | True`
+Sum Type | Disjunction of possible values | `False \| True`
 Product Type | Conjunction of possible values | `Just a`
 
 At the *type level* we deal with type constructors. At the *term level* we deal with data constructors.
