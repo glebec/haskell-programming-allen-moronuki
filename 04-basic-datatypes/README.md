@@ -62,6 +62,18 @@ It would be possible to actually define a datatype for integers ourselves, using
 * `++` for two lists
 * `concat` for list of lists
 
+## Names and Vars
+
+Seven categories of things with names:
+
+* Functions, e.g. `concat`
+* Term-level variables, e.g. `myStr`
+* Data constructors, e.g. `True`
+* Type variables
+* Type constructors, e.g. `Bool`
+
+Can use unicode, including `'` (e.g. `f'`).
+
 ## Misc
 
 * `/=`for inequalities.
