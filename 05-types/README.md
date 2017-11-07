@@ -2,9 +2,7 @@
 
 ## Misc
 
-Haskell is statically typed, but also uses Hindley-Milner type inference.
-
-The compiler assigns the most general typeclass it can until forced to use a more specific type. For example `1 :: Num p => p`.
+Monomorphism restriction: top-level declarations by default will have a concrete type if any can be determined. Can be relaxed using `{-# LANGUAGE NoMonomorphismRestriction #-}`.
 
 Polymorphic: can be one of any type. Constrained polymorphism: can be one of multiple specific types.
 
@@ -62,3 +60,23 @@ Can also be used with prefix functions using backticks:
 isSingleDigit = (`elem` [0..9])
 ```
 
+## Polymorphism
+
+* Constrained (aka ad-hoc): fewer possible types, more things you can do (because you've specified supported methods). Example: `Integral q => q -> q`
+* Parametric: any possible type, which means no possible operations except passing around / grouping / selecting. Example: `a -> b -> a`.
+
+## Inference
+
+Haskell is statically typed, but also uses an extended version of Damas-Hindley-Milner type inference.
+
+The compiler assigns the most general typeclass it can until forced to use a more specific type. For example numeric literals are made `Num` by default, i.e. `1 :: Num p => p`.
+
+## Asserting Types
+
+It is possible, though uncommon, to declare types locally with `let` and `where`.
+
+```hs
+triple x = tripleItYo x
+     where tripleItYo :: Integer -> Integer
+           tripleItYo y = y * 3
+```
