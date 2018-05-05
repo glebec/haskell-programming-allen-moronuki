@@ -19,6 +19,7 @@ digitToWord = \case
 digits :: Int -> [Int]
 -- digits = map ((read :: String -> Int) . (: [])) . show
 digits = reverse . stigid where -- reversing so as to avoid recursive `++`
+  stigid :: Int -> [Int]
   stigid n
     | n `div` 10 == 0 = [n]
     | otherwise       = n `mod` 10 : stigid (n `div` 10)
