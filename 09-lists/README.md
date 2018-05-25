@@ -40,3 +40,32 @@ Comprehensions:
 - `[x^y | x <- [1..5], y <- [2, 3], x^y < 200]`
 - `[(x, y) | x <- [1, 2, 3], y <- ['a', 'b']]` is (1, a), (1, b), (2, a) etc.
 - `[x | x <- "Three Letter Acronym", elem x ['A'..'Z']]` is "TLA"
+
+---
+
+`:sprint` command can indicate (somewhat) what expressions have been evaluated.
+
+```
+λ: let blah = enumFromTo 'a' 'z'
+λ: :sprint blah
+blah = _
+λ: take 3 blah
+"abc"
+λ: sprint blah
+blah = 'a' : 'b' : 'c' : _
+```
+
+**WHNF** (Weak Head Normal Form) – evaluated to at least a data constructor.
+
+- `(1, 2)` WHNF & NF
+- `(1, 1 + 1)` WHNF (not NF)
+
+`length` is strict in the spine but not the values. Using `_` in pattern matching can be used to ignore values.
+
+`take 2 $ map (+1) [1, 2, undefined]` prints `[2, 3]`.
+
+---
+
+- `bool :: a -> a -> Bool -> a`
+- `chr :: Int -> Char`
+- `ord :: Char -> Int`
