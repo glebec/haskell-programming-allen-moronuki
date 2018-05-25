@@ -6,6 +6,7 @@
 \begin{code}
 import Data.Bool (bool)
 import Data.Char
+import Data.Monoid (Any(..))
 \end{code}
 
 \section{9.5 EnumFromTo}
@@ -178,5 +179,50 @@ Cipher: see 03-cipher.hs
 Implementing standard functions:
 
 \begin{code}
+myOr :: [Bool] -> Bool
+myOr = foldr (||) False
 
+myAny :: (a -> Bool) -> [a] -> Bool
+myAny p = getAny . foldMap (Any . p)
+
+myElem :: Eq a => a -> [a] -> Bool
+-- myElem _ [] = False
+-- myElem a (x:xs)
+--   | a == x    = True
+--   | otherwise = myElem a xs
+myElem a = myAny (== a)
+
+myReverse :: [a] -> [a]
+myReverse list = go list [] -- my attempt to make this O(n), matches GHC
+  where go [] rest = rest
+        go (x:xs) rest = go xs (x:rest)
+-- foldl (flip (:)) [] -- from GHC source, I had tried to do similar with foldr
+
+squish :: [[a]] -> [a]
+squish = (>>= id)
+-- squish = foldr (++) []
+
+squishMap :: (a -> [b]) -> [a] -> [b]
+squishMap = (=<<)
+
+squishAgain :: [[a]] -> [a]
+squishAgain = squishMap id
+
+myMaximumBy :: (a -> a -> Ordering) -> [a] -> a -- unsafe!
+myMaximumBy _    (x:[])  = x
+myMaximumBy comp (x:y:l) = case comp x y of
+                             GT -> myMaximumBy comp (x:l)
+                             LT -> myMaximumBy comp (y:l)
+                             EQ -> myMaximumBy comp (y:l)
+
+myMinimumBy :: (a -> a -> Ordering) -> [a] -> a -- unsafe!
+myMinimumBy _    (x:[])  = x
+myMinimumBy comp (x:y:l) = case comp x y of
+                             LT -> myMinimumBy comp (x:l)
+                             GT -> myMinimumBy comp (y:l)
+                             EQ -> myMinimumBy comp (y:l)
+
+myMaximum, myMinimum :: Ord a => [a] -> a -- unsafe!
+myMaximum = myMaximumBy compare
+myMinimum = myMinimumBy compare
 \end{code}

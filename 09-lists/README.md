@@ -66,6 +66,22 @@ blah = 'a' : 'b' : 'c' : _
 
 ---
 
+From `Data.Bool`:
+
 - `bool :: a -> a -> Bool -> a`
+
+From `Data.Char`:
+
 - `chr :: Int -> Char`
 - `ord :: Char -> Int`
+
+---
+
+Surprising import issue: do not forget that type names and constructor names can be identical. Importing a type does not automatically import the type's constructors.
+
+```hs
+import Data.Monoid -- everything, including `Any`
+import Data.Monoid (Any) -- imports the Any **TYPE** (but not constructor(s)!)
+import Data.Monoid (Any(..)) -- imports the Any type with all of its constructors
+import Data.Monoid (Any(Any)) -- imports the Any type with just the Any constructor
+```
