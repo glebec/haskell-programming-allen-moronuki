@@ -4,7 +4,7 @@
 > module Chapter11Exercises where
 > import Data.Int
 > import Data.Char
-> import Data.List (elemIndex, find, sort, sortOn, group)
+> import Data.List (elemIndex, find, sort, sortOn, group, intersperse)
 > import Data.Maybe (fromMaybe)
 
 \section{11.5 Data constructors and values}
@@ -450,12 +450,12 @@ Phone keypad: 1, 2 ABC, 3 DEF, 4 GHI, 5 JKL, 6 MNO, 7 PQRS, 8 TUV, 9 WXYZ, * ^, 
 5. What was the most popular letter overall? What was the most popular word?
 
 > coolestLtr :: [String] -> Char
-> coolestLtr = mostPopularLetter . concat
+> coolestLtr = mostPopularLetter . concat . intersperse "\n"
 
 > a5i = coolestLtr convo -- ' '
 
 > coolestWord :: [String] -> String
-> coolestWord = mostPopularWord . concat
+> coolestWord = mostPopularWord . concat . intersperse "\n"
 
 > a5ii = coolestWord convo -- "u"
 
