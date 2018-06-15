@@ -450,22 +450,14 @@ Phone keypad: 1, 2 ABC, 3 DEF, 4 GHI, 5 JKL, 6 MNO, 7 PQRS, 8 TUV, 9 WXYZ, * ^, 
 5. What was the most popular letter overall? What was the most popular word?
 
 > coolestLtr :: [String] -> Char
-> coolestLtr = fst . head . sortOn (negate . snd) . map toLetterAndCount
->   where toLetterAndCount :: String -> (Char, Int)
->         toLetterAndCount s = (theLetter, theCount)
->                              where theLetter = mostPopularLetter s
->                                    theCount  = length $ filter (== theLetter) s
+> coolestLtr = mostPopularLetter . concat
 
 > a5i = coolestLtr convo -- ' '
 
 > coolestWord :: [String] -> String
-> coolestWord = fst . head . sortOn (negate . snd) . map toWordAndCount
->   where toWordAndCount :: String -> (String, Int)
->         toWordAndCount s = (theWord, theCount)
->                            where theWord = mostPopularWord s
->                                  theCount  = length $ filter (== theWord) (words s)
+> coolestWord = mostPopularWord . concat
 
-> a5ii = coolestWord convo -- "20"
+> a5ii = coolestWord convo -- "u"
 
 Opinion: what a slog that was.
 
