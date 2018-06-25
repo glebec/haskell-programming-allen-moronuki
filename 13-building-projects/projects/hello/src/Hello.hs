@@ -1,6 +1,6 @@
 {-# OPTIONS_GHC -W #-}
 
-module Hello where
+module Hello (sayHello) where
 
 sayHello :: IO ()
 sayHello = putStrLn "hello world"
