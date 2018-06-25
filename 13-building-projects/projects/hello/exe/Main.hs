@@ -1,6 +1,9 @@
 module Main where
 
 import Hello
+import DogsRule
 
 main :: IO ()
-main = sayHello
+main = do
+    sayHello
+    dogs
