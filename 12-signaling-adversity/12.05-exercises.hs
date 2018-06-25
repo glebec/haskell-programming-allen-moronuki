@@ -1,7 +1,9 @@
+{-# OPTIONS_GHC -W #-}
+
 module Ch12Exercises where
 
 import Data.Maybe (fromMaybe, fromJust)
-import Data.Monoid ((<>))
+-- import Data.Monoid ((<>))
 
 -- Determine the kinds
 
@@ -29,13 +31,13 @@ replaceThe = unwords . go . map notThe . words
 
 startsWithVowel :: String -> Bool
 startsWithVowel ""     = False
-startsWithVowel (c:cs) = c `elem` vowels
+startsWithVowel (c:_) = c `elem` vowels
 
 countTheBeforeVowel :: String -> Integer
 countTheBeforeVowel = go . words
   where go :: [String] -> Integer
         go []  = 0
-        go [w] = 0
+        go [_] = 0
         go (w : x : ws) = case (w, startsWithVowel x) of
             ("the", True) -> 1 + go ws
             _             -> go (x : ws)
@@ -75,7 +77,7 @@ integerToNat i
   | i < 0     = Nothing
   | otherwise = Just $ convert i
   where convert 0 = Zero
-        convert a = Succ (convert $ a - 1)
+        convert a = Succ $ convert (a - 1)
 
 -- Small library for Maybe
 
@@ -103,8 +105,8 @@ fromMaybe' fallback = mayybee fallback id
 
 -- 4.
 listToMaybe :: [a] -> Maybe a
-listToMaybe []     = Nothing
-listToMaybe (x:xs) = Just x
+listToMaybe []    = Nothing
+listToMaybe (x:_) = Just x
 
 maybeToList :: Maybe a -> [a]
 maybeToList Nothing  = []
@@ -119,12 +121,15 @@ catMaybes = map fromJust . filter isJust
 
 -- 6.
 flipMaybe :: [Maybe a] -> Maybe [a]
-flipMaybe list
-  | length result == length list = Just result
-  | otherwise                    = Nothing
-  where result = go list
-        go []     = []
-        go (x:xs) = maybe [] (: go xs) x
+-- flipMaybe list
+--   | length result == length list = Just result
+--   | otherwise                    = Nothing
+--   where result = go list
+--         go []     = []
+--         go (x:xs) = maybe [] (: go xs) x
+flipMaybe list = if any isNothing list
+                 then Nothing
+                 else Just $ catMaybes list
 
 -- Small library for Either
 
@@ -146,10 +151,21 @@ rights' = foldr takeRight []
 
 -- 3.
 partitionEithers' :: [Either a b] -> ([a], [b])
+-- my initial implementation using mappend:
+-- partitionEithers' [] = ([], [])
+-- partitionEithers' (e:es) = case e of
+--     Left  a -> ([a], []) <> partitionEithers' es
+--     Right b -> ([], [b]) <> partitionEithers' es
+
+-- a revised version which avoids implicit ++:
 partitionEithers' [] = ([], [])
 partitionEithers' (e:es) = case e of
-    Left  a -> ([a], []) <> partitionEithers' es
-    Right b -> ([], [b]) <> partitionEithers' es
+    Left  a -> ((a:), id) <$$> partitionEithers' es
+    Right b -> (id, (b:)) <$$> partitionEithers' es
+    where (<$$>) (f, g) (a, b) = (f a, g b)
+
+-- a much simpler implementation (LOL):
+-- partitionEithers' es = (lefts' es, rights' es)
 
 -- Prelude simply does a foldr:
 -- partitionEithers = foldr (either left right) ([],[])
@@ -160,7 +176,7 @@ partitionEithers' (e:es) = case e of
 -- 4.
 eitherMaybe' :: (b -> c) -> Either a b -> Maybe c
 eitherMaybe' f e = case e of
-    Left a  -> Nothing
+    Left  _ -> Nothing
     Right b -> Just $ f b
 
 -- 5.
@@ -188,7 +204,7 @@ myUnfoldr gen seed = case gen seed of
 
 -- 3.
 betterIterate :: (a -> a) -> a -> [a]
-betterIterate f x = x : myUnfoldr ((\o -> Just (o, o)) . f) x
+betterIterate f = myUnfoldr (\o -> Just (o, f o))
 
 -- Tree
 
