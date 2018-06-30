@@ -10,24 +10,24 @@ import System.Random (randomRIO)
 minWordLength = 5 :: Int
 maxWordLength = 9 :: Int
 
-type WordList = [String]
+newtype WordList = WordList [String] deriving (Eq, Show)
 
 allWords :: IO WordList
-allWords = lines <$> readFile "data/dict.txt"
+allWords = (WordList . lines) <$> readFile "data/dict.txt"
 -- allWords = do
 --     dict <- readFile "data/dict.txt"
 --     return $ lines dict
 
 gameWords :: IO WordList
 gameWords = do
-    aw <- allWords
-    return $ filter gameLength aw
+    (WordList aw) <- allWords
+    return $ WordList (filter gameLength aw)
     where gameLength w = let l = length (w :: String)
                          in  l >= minWordLength &&
                              l <  maxWordLength
 
 randomWord :: WordList -> IO String
-randomWord ws = (ws !!) <$> randomRIO (0, length ws - 1)
+randomWord (WordList ws) = (ws !!) <$> randomRIO (0, length ws - 1)
 -- randomWord ws = do
 --     idx <- randomRIO (0, length ws - 1)
 --     return $ ws !! idx
