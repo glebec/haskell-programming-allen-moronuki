@@ -2,13 +2,14 @@ module Main where
 
 import Control.Monad (forever, when)
 import Data.Char (toLower)
-import Data.Maybe (isJust, fromMaybe)
+import Data.Maybe (isJust, fromMaybe, catMaybes)
 import Data.List (intersperse)
 import System.Exit (exitSuccess)
 import System.Random (randomRIO)
 
 minWordLength = 5 :: Int
 maxWordLength = 9 :: Int
+guessLimit = 7 :: Int
 
 newtype WordList = WordList [String] deriving (Eq, Show)
 
@@ -34,11 +35,11 @@ randomWord (WordList ws) = (ws !!) <$> randomRIO (0, length ws - 1)
 
 randomWord' = allWords >>= randomWord
 
-data Puzzle = Puzzle String [Maybe Char] [Char] -- word, found, guesses
+data Puzzle = Puzzle String [Maybe Char] [Char] -- word, found, wrong guesses
 instance Show Puzzle where
-    show (Puzzle _ discovered guessed) =
-        intersperse ' ' (fmap renderPuzzleChar discovered)
-        ++ " Guessed so far: " ++ guessed
+    show (Puzzle _ found guessed) =
+        intersperse ' ' (fmap renderPuzzleChar found)
+        ++ " Wrong guesses so far: " ++ guessed ++ " " ++ spellHangman guessed
 
 renderPuzzleChar :: Maybe Char -> Char
 renderPuzzleChar = fromMaybe '_'
@@ -52,32 +53,43 @@ charInWord (Puzzle word _ _) c = c `elem` word
 alreadyGuessed :: Puzzle -> Char -> Bool
 alreadyGuessed (Puzzle _ _ guesses) c = c `elem` guesses
 
+alreadyFound :: Puzzle -> Char -> Bool
+alreadyFound (Puzzle _ found _) c = c `elem` catMaybes found
+
 fillInCharacter :: Puzzle -> Char -> Puzzle
-fillInCharacter (Puzzle word found gs) g =
-    Puzzle word found' (g : gs)
+fillInCharacter p@(Puzzle word found gs) g =
+    Puzzle word found' (if charInWord p g then gs else g : gs)
     where found' = zipWith (match g) word found
           match guessed wordChar guessChar =
               if wordChar == guessed
               then Just wordChar
               else guessChar
 
+spellHangman :: String -> String
+spellHangman = zipWith const "HANGMAN"
+
 handleGuess :: Puzzle -> Char -> IO Puzzle
 handleGuess puzzle guess = do
     putStrLn $ "Your guess was: " ++ [guess]
-    case (charInWord puzzle guess, alreadyGuessed puzzle guess) of
-        (_, True) -> do
-            putStrLn "Already picked, please try something else."
+    case ( charInWord puzzle guess
+         , alreadyGuessed puzzle guess
+         , alreadyFound puzzle guess) of
+        (_, _, True) -> do
+            putStrLn "Already found, please try something else."
             return puzzle
-        (True, _) -> do
+        (_, True, _) -> do
+            putStrLn "You already tried that, please try something else."
+            return puzzle
+        (True, _, _) -> do
             putStrLn "Good guess! Filling in the word."
             return (fillInCharacter puzzle guess)
-        (False, _) -> do
+        (False, _, _) -> do
             putStrLn "Sorry, that's not in the word."
             return (fillInCharacter puzzle guess)
 
 gameOver :: Puzzle -> IO ()
 gameOver (Puzzle word _ gs) =
-    when (length gs > (length word + 5)) $ do
+    when (length gs >= guessLimit) $ do
         putStrLn "Sorry, game over."
         putStrLn $ "The word was " ++ word
         exitSuccess
