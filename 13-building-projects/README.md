@@ -4,6 +4,7 @@
 
 Command       | Action
 --------------|-------
+`stack new DIR_NAME simple` | initializes project in `DIR_NAME` using `simple` template
 `stack build` | build project from `stack.yaml`
 `stack setup` | determine which GHC to use, based on LTS
 `stack exec -- BIN_NAME` | execute linked `BIN_NAME`
