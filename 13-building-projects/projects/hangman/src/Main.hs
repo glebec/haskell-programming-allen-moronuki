@@ -66,7 +66,7 @@ fillInCharacter p@(Puzzle word found gs) g =
               else guessChar
 
 spellHangman :: String -> String
-spellHangman = zipWith const "HANGMAN"
+spellHangman guesses = take (length guesses) "HANGMAN"
 
 handleGuess :: Puzzle -> Char -> IO Puzzle
 handleGuess puzzle guess = do
