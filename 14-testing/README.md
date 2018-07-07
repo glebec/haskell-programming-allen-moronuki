@@ -26,3 +26,15 @@ Function     | `::` | Example
 `choose`     | `System.Random.Random a => (a, a) -> Gen a` | `sample $ choose (False, True)`: T, F, F…
 `frequency`  | `[(Int, Gen a)] -> Gen a` | `frequency [(1, return Nothing), (3, return (Just 5))]`
 `quickCheck` | `Testable prop => prop -> IO ()` | `quickCheck (\x -> x + 1 > x)`
+
+- generators
+- `arbitrary`
+- `elements`
+- `choose`
+
+### More Stack
+
+- `echo "hello world" | stack exec morse-exe from`
+- `stack test`
+- `stack ghci morse:morse-test`
+- edit `package.yaml` and run `stack build`
