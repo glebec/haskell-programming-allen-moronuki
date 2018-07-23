@@ -11,6 +11,8 @@ library
   exposed-modules:    Addition
                     , Intermission
                     , Generators
+                    , Arbitrary
+                    , CoArbitrary
   hs-source-dirs:     .
   ghc-options:        -Wall -fwarn-tabs
   default-language:   Haskell2010
