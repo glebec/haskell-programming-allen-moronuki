@@ -3,10 +3,11 @@ module WordNumberTest where
 import Test.Hspec
 import Test.QuickCheck
 import Test.QuickCheck.Property (expectFailure)
-import WordNumber (digitToWord, digits, wordNumber)
-import UsingQC
 import Data.List (sort)
 import Data.Char (toUpper)
+import WordNumber (digitToWord, digits, wordNumber)
+import UsingQC
+import Cipher
 
 -- UsingQC
 
@@ -164,6 +165,29 @@ likelyFrue :: Gen Fool
 likelyFrue = frequency [(2, return Frue), (1, return Fulse)]
 -- likelyFrue = elements [Frue, Frue, Fulse]
 
+-- Ciphers
+
+prop_vigenereIdentity :: String -> String -> Bool
+prop_vigenereIdentity key s = unVigenere key (vigenere key s) == s
+
+prop_caesarIdentity :: Int -> String -> Bool
+prop_caesarIdentity n s = unCaesar n (caesar n s) == s
+
+arbitraryASCII :: Gen String
+arbitraryASCII = getASCIIString <$> arbitrary
+
+prop_caesarPrintIdentity :: Property
+prop_caesarPrintIdentity =
+    forAll arbitraryASCII (\s ->
+    forAll (arbitrary :: Gen Int) (\n ->
+    prop_caesarIdentity n s))
+
+prop_vigenerePrintIdentity :: Property
+prop_vigenerePrintIdentity =
+    forAll arbitraryASCII (\s ->
+    forAll arbitraryASCII (\s' ->
+    prop_vigenereIdentity s s'))
+
 -- spec
 
 main :: IO ()
@@ -260,3 +284,10 @@ main = hspec $ do
             it "is idempotent" $
                 property (prop_sortIdempotent :: [Int] -> Bool) .&&.
                 property (prop_sortIdempotent :: [String] -> Bool)
+    describe "Cipher" $ do
+        describe "caesar" $
+            it "round-trips" $
+                property prop_caesarPrintIdentity
+        describe "vigenere" $
+            it "round-trips" $
+                property prop_vigenerePrintIdentity

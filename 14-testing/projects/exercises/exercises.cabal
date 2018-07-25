@@ -2,7 +2,7 @@
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: 5a3c7b863db4194442bf18c4898d4f395c72e2d1315f6a42419440e9222dcd4c
+-- hash: 5034eb4487ec892114f131842e72d453fadb478b80e67aaf72f546513ef59fed
 
 name:           exercises
 version:        0.1.0.0
@@ -26,6 +26,7 @@ source-repository head
 
 library
   exposed-modules:
+      Cipher
       UsingQC
       WordNumber
   other-modules:
