@@ -44,3 +44,33 @@ Solutions:
 - if you defined the type, add the instance in the type module
 - if you defined the typeclass, add the instance in that module
 - if neither, create a `newtype` wrapper and give it an instance
+
+## Misc
+
+You can bind params with infix names:
+
+```hs
+\ (<>) a b c ->
+    a <> (b <> c) == (a <> b) <> c
+```
+
+`verboseCheck` is a version of `quickCheck` which reports which values were tested.
+
+One legit-seeming use for `type` aliases is to have shorter type annotations:
+
+```hs
+type Short = Type1 -> Type2 -> Type1 -> Type3 -> Type1
+
+a = func1 :: Short
+b = func2 :: Short
+```
+
+Another way to deal with this is the `TypeApplications` extension, which lets you explicitly set the type argument(s) to a compiled function:
+
+```hs
+someFunc :: (Eq a) => a -> a -> a -> a -> Int -> Bool
+someFunc = ...
+
+-- customized = someFunc :: String -> String -> String -> String -> Int -> Bool
+customized = someFunc @String
+```
