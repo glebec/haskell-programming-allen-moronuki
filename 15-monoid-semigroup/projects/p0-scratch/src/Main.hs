@@ -7,6 +7,7 @@ import Test.QuickCheck
 -- import Control.Monad
 -- import Data.Monoid
 -- import MadLib
+import Data.List.NonEmpty
 
 -- Exercise: Optional Monoid
 
@@ -68,7 +69,7 @@ instance Arbitrary Bull where
 instance Semigroup Bull where
     (<>) _ _ = Fools
 
-instance Monoid Bull where
+instance Monoid Bull where -- this is a false monoid!
     mempty = Fools
 
 -- type BullMappend = Bull -> Bull -> Bull -> Bool
@@ -106,6 +107,14 @@ instance Monoid (First' a) where
 -- type FirstMappend = First' String -> First' String -> First' String -> Bool
 -- type FstId = First' String -> Bool
 
+-- Semigroups
+
+instance Arbitrary a => Arbitrary (NonEmpty a) where
+    arbitrary = do
+        xs <- arbitrary
+        x  <- arbitrary
+        return $ x :| xs
+
 main :: IO ()
 -- main = putStrLn "hi"
 main = hspec $ do
@@ -131,3 +140,6 @@ main = hspec $ do
             property $ prop_monoidLeftId @(First' String)
         it "has a right identity" $
             property $ prop_monoidRightId @(First' String)
+    describe "NonEmpty" $
+        it "is associative" $
+            property $ prop_associative @(NonEmpty Char)

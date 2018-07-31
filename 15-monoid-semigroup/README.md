@@ -54,7 +54,11 @@ You can bind params with infix names:
     a <> (b <> c) == (a <> b) <> c
 ```
 
+---
+
 `verboseCheck` is a version of `quickCheck` which reports which values were tested.
+
+---
 
 One legit-seeming use for `type` aliases is to have shorter type annotations:
 
@@ -73,4 +77,14 @@ someFunc = ...
 
 -- customized = someFunc :: String -> String -> String -> String -> Int -> Bool
 customized = someFunc @String
+```
+
+---
+
+> "Data constructors with only nonalphanumeric symbols and that begin with a colon are infix by default."
+
+The above lets you distinguish between infix functions and infix data constructors.
+
+```hs
+data NonEmpty a = a :| [a] deriving (Eq, Ord, Show)
 ```
