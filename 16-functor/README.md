@@ -4,7 +4,7 @@ A nice aligned snippet showing how functor `fmap` is elevated function applicati
 
 ```hs
 (<$>) :: Functor f => (a -> b) -> f a -> f b
-($)   :: Functor f => (a -> b) ->   a ->   b
+($)   ::              (a -> b) ->   a ->   b
 ```
 
 ## 16.4 Exercises
