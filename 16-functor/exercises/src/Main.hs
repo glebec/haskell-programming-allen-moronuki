@@ -8,6 +8,7 @@ import Test.Hspec
 import Test.QuickCheck
 import Test.QuickCheck.Function
 import Prelude.Unicode
+import ChapterExercises
 
 functorIdentity :: ∀ f a . (Eq (f a), Functor f) => f a -> Bool
 functorIdentity f = fmap id f == f
