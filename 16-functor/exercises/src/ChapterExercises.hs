@@ -1,14 +1,7 @@
-{-# LANGUAGE TypeApplications #-}
-{-# LANGUAGE ExplicitForAll #-}
-{-# LANGUAGE UnicodeSyntax #-}
 {-# LANGUAGE FlexibleInstances #-}
 
 module ChapterExercises where -- 16.17
 
-import Prelude.Unicode
--- import Test.Hspec
--- import Test.QuickCheck
--- import Test.QuickCheck.Function
 import GHC.Arr
 
 -- Determine if a valid Functor can be written for the datatype provided.
