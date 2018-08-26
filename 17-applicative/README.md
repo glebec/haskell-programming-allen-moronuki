@@ -40,6 +40,12 @@ Just (+1) <*> Nothing -- Nothing -- apply if exists
 [(+2), (*3)] <*> [3, 4] -- [5, 6, 9, 12] -- cartesian product
 
 (++) <$> getLine <*> getLine -- line1 ++ line2 –– apply to program outputs
+
+Right (+1) <*> Right 5 -- Right 6, apply if exists
+
+Left ":(" <*> Left "X|" -- Left ":(", monoid uses first Left value
+
+Failure e1 <*> Failure e2 -- Failure $ e1 <> e2, Validation data type
 ```
 
 ---
