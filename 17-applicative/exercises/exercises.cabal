@@ -21,3 +21,4 @@ executable exercises
                      , QuickCheck
                      , hspec
                      , checkers
+                     , base-unicode-symbols
