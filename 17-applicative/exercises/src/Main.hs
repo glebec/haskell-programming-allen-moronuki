@@ -1,7 +1,10 @@
 module Main where
 
 import BadMonoid (checkBadMonoid, checkAppSSI)
-import Apl1 (checkList, checkZipList, checkValidation)
+import Ex17_8A_ZipList
+import Ex17_8B_List (checkList)
+import Ex17_8C_ZipList (checkZipList)
+import Ex17_8D_Validation (checkValidation)
 
 main :: IO ()
 main = do
