@@ -33,3 +33,5 @@ Essence of monads is really in `join`:
 join :: Monad m => m (m a) -> m a
 join mma = mma >>= id
 ```
+
+The monad lifts (`liftM`, `liftM2` etc.) are the same as the applicative lifts (`liftA`, `liftA2` etc.).
