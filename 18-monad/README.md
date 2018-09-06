@@ -35,3 +35,18 @@ join mma = mma >>= id
 ```
 
 The monad lifts (`liftM`, `liftM2` etc.) are the same as the applicative lifts (`liftA`, `liftA2` etc.).
+
+Kleisli composition (available in `Control.Monad`):
+
+```hs
+(>=>)    :: Monad m => (a -> m b) -> (b -> m c) -> a -> m c
+flip (.) ::            (a ->   b) -> (b ->   c) -> a ->   c
+```
+
+Monad Laws (in terms of Kleisli composition):
+
+```
+pure >=> f          = f
+         f >=> pure = f
+f >=> (g >=> h) = (f >=> g) >=> h
+```
