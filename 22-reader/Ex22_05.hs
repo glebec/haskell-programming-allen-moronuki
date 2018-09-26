@@ -1,4 +1,4 @@
-module Ex22_5 where
+module Ex22_05 where
 
 newtype Reader r a = Reader { runReader :: r -> a }
 

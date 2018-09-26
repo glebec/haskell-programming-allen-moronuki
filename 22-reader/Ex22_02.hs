@@ -1,4 +1,4 @@
-module Ex22_2 where
+module Ex22_02 where
 
 import Data.Char
 

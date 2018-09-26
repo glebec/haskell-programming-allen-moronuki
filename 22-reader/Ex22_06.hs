@@ -1,6 +1,6 @@
 {-# LANGUAGE InstanceSigs #-}
 
-module Ex22_6 where
+module Ex22_06 where
 
 -- 1.
 

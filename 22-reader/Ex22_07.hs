@@ -1,6 +1,6 @@
 {-# LANGUAGE InstanceSigs #-}
 
-module Ex22_7 where
+module Ex22_07 where
 
 newtype Reader r a = Reader { runReader :: r -> a }
 
