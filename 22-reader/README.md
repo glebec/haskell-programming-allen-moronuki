@@ -72,7 +72,7 @@ fmap (+) dbl :: Num a => a -> (a -> a) -- (+) :: a -> (a -> a)
 newtype Reader r a = Reader { runReader :: r -> a }
 ```
 
-Basically just gives a name to the context `r ->` (where the result `a` can e.g. be mapped over, etc.).
+Basically just gives a name to the context `r ->` (where the result `a` can e.g. be mapped over).
 
 ```hs
 (<$>) ::          (a -> b) -> Reader r a -> Reader r b
