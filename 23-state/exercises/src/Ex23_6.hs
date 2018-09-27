@@ -18,5 +18,4 @@ instance Monad (Moi s) where
     (>>=) :: Moi s a -> (a -> Moi s b) -> Moi s b
     (>>=) (Moi s2as) a2Msb = Moi $
         \s -> let (a, s')  = s2as s
-                  (b, s'') = runMoi (a2Msb a) s'
-              in  (b, s'')
+              in  runMoi (a2Msb a) s'
