@@ -27,7 +27,7 @@ fizzAndBuzz =
 
 fizzBuzzFromTo :: Integer -> Integer -> [String]
 fizzBuzzFromTo frm to = execState
-    (mapM_ addResult $ enumFromThenTo to (to - 1) frm) []
+    (mapM_ addResult $ enumFromThenTo to (to - 1) frm) [] -- reverse order
 
 fizzAndBuzz' :: IO ()
 fizzAndBuzz' =
