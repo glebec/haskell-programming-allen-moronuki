@@ -29,7 +29,8 @@ demoFraction = do
     print $ parseFraction' alsoBad
 
 parseIntEof :: Parser Integer
-parseIntEof = integer >>= \i -> eof >> return i
+parseIntEof = const <$> integer <*> eof
+-- parseIntEof = integer >>= \i -> eof >> return i
 
 demoIntEof :: IO ()
 demoIntEof = print $ parseString parseIntEof mempty "123"
