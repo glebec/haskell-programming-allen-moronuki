@@ -20,3 +20,8 @@ executable exercises
   build-depends:       base >= 4.7 && < 5
                      , trifecta
                      , parsers
+                     , hspec
+                     , containers
+                     , bytestring
+                     , text
+                     , raw-strings-qq

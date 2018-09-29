@@ -4,6 +4,7 @@ import LearnParsers
 import Ex24_3
 import Ex24_4
 import Ex24_6
+import Ex24_7
 
 main :: IO ()
 main = do
@@ -12,3 +13,4 @@ main = do
     demoFraction
     demoIntEof
     demo24_6
+    testParseIni
