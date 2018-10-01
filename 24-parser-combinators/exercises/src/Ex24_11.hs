@@ -5,6 +5,7 @@ import Text.Trifecta
 import Text.Parser.LookAhead
 import Test.Hspec
 import Data.Foldable (sequenceA_)
+import Data.Function (on)
 
 -- 1. Write a parser for semver as per http://semver.org. Then write an `Ord`
 -- instance for `SemVer` that obeys the spec on the site.
@@ -20,17 +21,28 @@ type Patch = Integer
 type Release = [NumberOrString]
 type Metadata = [NumberOrString]
 
-data SemVer = SemVer Major Minor Patch Release Metadata deriving (Show)
+data SemVer = SemVer Major Minor Patch Release Metadata deriving (Eq, Show)
 
-instance Eq SemVer where
-    (==) (SemVer mj mn pt rl _) (SemVer mj' mn' pt' rl' _) =
-        (mj, mn, pt, rl) == (mj', mn', pt', rl')
+-- Making an `instance Ord SemVer` either means having an `Eq` instance which
+-- ignores metadata, or having `Ord` & `Eq` disagree. The solution here uses
+-- a newtype for precedence comparison; thanks to Christoph Horst for the idea.
+newtype SemVerPrecedence = SemVerPrecedence SemVer deriving (Show)
 
-instance Ord SemVer where
-    compare s@(SemVer mj mn pt rl _) s'@(SemVer mj' mn' pt' rl' _)
-        | (mj, mn, pt, rl) > (mj', mn', pt', rl') = GT
-        | s == s'                                 = EQ
-        | otherwise                               = LT
+instance Eq SemVerPrecedence where
+    (==) (SemVerPrecedence (SemVer mj  mn  pt  rl  _))
+         (SemVerPrecedence (SemVer mj' mn' pt' rl' _)) =
+         (mj, mn, pt, rl) == (mj', mn', pt', rl')
+
+instance Ord SemVerPrecedence where
+    compare s@( SemVerPrecedence (SemVer mj  mn  pt  rl  _))
+            s'@(SemVerPrecedence (SemVer mj' mn' pt' rl' _))
+        | (mj, mn, pt) == (mj', mn', pt') = case (rl, rl') of
+            -- we subvert normal list comp b/c pre-releases come EARLIER.
+            ([], _:_) -> GT
+            (_:_, []) -> LT
+            _         -> compare rl rl'
+        | (mj, mn, pt) < (mj', mn', pt') = LT
+        | otherwise = GT
 
 parseVersion :: Parser (Major, Minor, Patch)
 parseVersion = do
@@ -99,8 +111,8 @@ specOp op msg a b = it (a ++ " " ++ msg ++ " " ++ b) $
     liftA2 op (psv a) (psv b) `shouldSatisfy` yields True
 
 specEQ, specLT :: String -> String -> SpecWith ()
-specEQ = specOp (==) "equals"
-specLT = specOp (<) "is less than"
+specEQ = specOp ((==) `on` SemVerPrecedence) "equals"
+specLT = specOp ((<)  `on` SemVerPrecedence) "is less than"
 
 checkSemVer :: IO ()
 checkSemVer = hspec $ do
