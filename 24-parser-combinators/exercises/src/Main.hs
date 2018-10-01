@@ -5,6 +5,7 @@ import Ex24_3
 import Ex24_4
 import Ex24_6
 import Ex24_7
+import Ex24_10
 
 main :: IO ()
 main = do

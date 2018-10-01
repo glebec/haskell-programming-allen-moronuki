@@ -22,3 +22,15 @@ def
 ...splicing expression...
 "\n123\nabc ...etc."
 ```
+
+## Aeson
+
+```hs
+data Value = Object !Object
+           | Array !Array
+           | String !Text
+           | Number !Scientific
+           | Bool !Bool
+           | Null
+           deriving (Eq, Read, Show, Typeable, Data)
+```
