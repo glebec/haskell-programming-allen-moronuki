@@ -8,8 +8,8 @@ import Text.Parser.LookAhead
 -- instance for `SemVer` that obeys the spec on the site.
 
 data NumberOrString =
-      NOSS String
-    | NOSI Integer
+      NOSI Integer
+    | NOSS String
     deriving (Eq, Ord, Show) -- N.B. that NOSS > NOSI by this derivation
 
 type Major = Integer
@@ -18,13 +18,18 @@ type Patch = Integer
 type Release = [NumberOrString]
 type Metadata = [NumberOrString]
 
-data SemVer = SemVer Major Minor Patch Release Metadata deriving (Eq, Show)
+data SemVer = SemVer Major Minor Patch Release Metadata deriving (Show)
+
+instance Eq SemVer where
+    (==) (SemVer mj mn pt rl _) (SemVer mj' mn' pt' rl' _) =
+        (mj, mn, pt, rl) == (mj', mn', pt', rl')
 
 instance Ord SemVer where
-    compare (SemVer mj mn pt rl me) (SemVer mj' mn' pt' rl' me')
-        | (mj, mn, pt, rl) >  (mj', mn', pt', rl') = GT
-        | (mj, mn, pt, rl) <  (mj', mn', pt', rl') = LT
-        | otherwise = EQ
+    compare s@(SemVer mj mn pt rl _) s'@(SemVer mj' mn' pt' rl' _)
+        | s == s' = EQ
+        | otherwise = if (mj, mn, pt, rl) > (mj', mn', pt', rl')
+                      then GT
+                      else LT
 
 parseVersion :: Parser (Major, Minor, Patch)
 parseVersion = do
@@ -79,7 +84,8 @@ sv3 = demoParseSemVer "19.2.38-alpha.01+myver2.09"
 svComp1, svComp2 :: Bool
 svComp1 = SemVer 2  1 1 [] []  > SemVer 2 1 0 [] []
 svComp2 = SemVer 12 3 1 [] []  > SemVer 2 1 0 [] []
+svComp3 = SemVer 1  1 1 [NOSS "alpha"] [] > SemVer 1  1 1 [NOSI 1] []
 
-svComp3 :: Result Bool
-svComp3 = (>) <$> demoParseSemVer "19.2.38-alpha.10+myver3.09" <*>
+svComp4 :: Result Bool
+svComp4 = (>) <$> demoParseSemVer "19.2.38-alpha.10+myver3.09" <*>
                   demoParseSemVer "19.2.38-alpha.4+myver2.09"
