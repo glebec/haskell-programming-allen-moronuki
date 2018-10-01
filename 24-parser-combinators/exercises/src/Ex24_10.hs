@@ -58,7 +58,7 @@ instance FromJSON Color where
         <|> (Yellow <$> v .: "yellow")
     parseJSON _ = fail "Expected an object for Color"
 
-demoEx24_10 = do
+demo24_10 = do
     let d :: Maybe TestData
         d = decode sectionJSON
     print d
