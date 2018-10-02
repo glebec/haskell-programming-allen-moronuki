@@ -5,6 +5,7 @@ import Text.Trifecta
 import Test.Hspec
 import Data.Foldable (sequenceA_)
 import Data.Function (on)
+import Data.Maybe
 
 -- 1. Write a parser for semver as per http://semver.org. Then write an `Ord`
 -- instance for `SemVer` that obeys the spec on the site.
@@ -205,3 +206,77 @@ checkSemVer = hspec $ do
             , "1.0.0-rc.1" `specLT` "1.0.0"
             , "1.0.0-rc.1+102" `specLT` "1.0.0"
             , "1.0.0-rc.1+102" `specLT` "1.0.0+102" ]
+
+-- 2. Write a parser for pos ints.
+
+parseDigit :: Parser Char
+parseDigit = oneOf ['0'..'9']
+
+base10Integer :: Parser Integer
+base10Integer = read <$> some parseDigit
+
+-- 3. handle ±
+
+base10Integer' :: Parser Integer
+base10Integer' = do
+    neg <- optional (char '-')
+    int <- base10Integer
+    pure $ if isJust neg then (-1) * int else int
+
+-- 4. Phone nums
+
+-- There are a ton of directions we could take this. The solution below seeks
+-- only to replicate exactly the behavior demonstrated in the book.
+
+type NumPlanArea = Int
+type Exchange = Int
+type LineNum = Int
+
+data PhoneNumber = PhoneNumber NumPlanArea Exchange LineNum deriving (Eq, Show)
+
+trunk :: Parser ()
+trunk = string "1-" >> pure ()
+
+areaNum :: Parser Int
+areaNum = read <$> count 3 digit
+
+exchNum :: Parser Int
+exchNum = areaNum
+
+lineNum :: Parser Int
+lineNum = read <$> count 4 digit
+
+dashedExchLine :: Parser (Int, Int)
+dashedExchLine = do
+    e <- exchNum
+    char '-'
+    l <- lineNum
+    pure (e, l)
+
+concisePhone :: Parser PhoneNumber
+concisePhone = PhoneNumber <$> areaNum <*> exchNum <*> lineNum
+
+parenPhone :: Parser PhoneNumber
+parenPhone = do
+    try (char '(')
+    a <- areaNum
+    string ") "
+    (e, l) <- dashedExchLine
+    pure $ PhoneNumber a e l
+
+dashedPhone :: Parser PhoneNumber
+dashedPhone = do
+    a <- try (do a <- areaNum
+                 char '-'
+                 pure a)
+    (e, l) <- dashedExchLine
+    pure $ PhoneNumber a e l
+
+fullPhone :: Parser PhoneNumber
+fullPhone = try trunk >> dashedPhone
+
+phone :: Parser PhoneNumber
+phone = fullPhone <|> parenPhone <|> dashedPhone <|> concisePhone
+
+-- 5. log file format
+

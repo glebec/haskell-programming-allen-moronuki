@@ -17,3 +17,4 @@ main = do
     demo24_6
     testParseIni
     demo24_10
+    checkSemVer
