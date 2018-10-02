@@ -266,9 +266,7 @@ parenPhone = do
 
 dashedPhone :: Parser PhoneNumber
 dashedPhone = do
-    a <- try (do a <- areaNum
-                 char '-'
-                 pure a)
+    a <- try (areaNum <* char '-')
     (e, l) <- dashedExchLine
     pure $ PhoneNumber a e l
 
