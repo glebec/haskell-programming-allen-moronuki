@@ -47,7 +47,7 @@ instance Ord SemVerPrecedence where
 
 {-
 Official BNF at https://github.com/semver/semver/blob/master/semver.md#backusnaur-form-grammar-for-valid-semver-versions
-EBNF below from https://github.com/semver/semver.org/issues/59#issuecomment-393560776
+EBNF below adapted from https://github.com/semver/semver.org/issues/59#issuecomment-393560776
 
 Version ::= VersionCore ('-' PreRelease)? ('+' Meta)?
 
@@ -56,13 +56,13 @@ Major ::= Numeric
 Minor ::= Numeric
 Patch ::= Numeric
 PreRelease ::= PreReleaseId ('.' PreReleaseId)*
-Meta      ::= MetaId ('.' MetaId)*
+Meta       ::= MetaId ('.' MetaId)*
 
-PreReleaseId     ::= AlphaNums | Numeric
-MetaId          ::= IdChar+
+PreReleaseId ::= AlphaNums | Numeric
+MetaId       ::= IdChar+
 
-Numeric    ::= '0' | ( PosNum Digit* )
-AlphaNums  ::= Digit* NonNum IdChar*
+Numeric   ::= '0' | ( PosNum Digit* )
+AlphaNums ::= Digit* NonNum IdChar*
 
 IdChar ::= NonNum | Digit
 
@@ -72,55 +72,57 @@ PosNum ::= [1-9]
 -}
 
 posNum :: Parser Char
-posNum = oneOf ['1'..'9'] <?> "posNum"
+posNum = oneOf ['1'..'9']
 
 nonNum :: Parser Char
-nonNum = (letter <|> char '-') <?> "nonNum"
+nonNum = letter <|> char '-'
 
 idChar :: Parser Char
-idChar = (nonNum <|> digit) <?> "idChar"
+idChar = nonNum <|> digit
 
 numeric :: Parser Integer
-numeric = ((string "0" >> pure 0) <|>
+numeric = (string "0" >> pure 0) <|>
           (do d  <- posNum
               ds <- many digit
-              pure $ read (d:ds))) <?> "numeric"
+              pure $ read (d:ds))
 
 alphaNums :: Parser String
-alphaNums = (do
+alphaNums = do
     cs1 <- many digit
     c   <- nonNum
     cs2 <- many idChar
-    pure $ cs1 ++ [c] ++ cs2) <?> "alphaNums"
+    pure $ cs1 ++ [c] ++ cs2
 
 metaId :: Parser NumberOrString
-metaId = (NOSS <$> some idChar) <?> "metaId"
+metaId = NOSS <$> some idChar
 
 preReleaseId :: Parser NumberOrString
-preReleaseId = (try (NOSS <$> alphaNums) <|> try (NOSI <$> numeric)) <?> "preReleaseId"
+preReleaseId = (NOSS <$> try alphaNums) <|>
+               (NOSI <$> try numeric)
 
 preRelease :: Parser PreRelease
-preRelease = sepBy1 preReleaseId (char '.') <?> "preRelease"
+preRelease = sepBy1 preReleaseId (char '.')
 
 meta :: Parser Metadata
-meta = sepBy1 metaId (char '.') <?> "meta"
+meta = sepBy1 metaId (char '.')
 
 version :: Parser (Major, Minor, Patch)
-version = (do
+version = do
     maj <- numeric
     char '.'
     min <- numeric
     char '.'
     ptc <- numeric
-    pure (maj, min, ptc)) <?> "version"
+    pure (maj, min, ptc)
 
 parseSemVer :: Parser SemVer
-parseSemVer = (do
+parseSemVer = do
     (maj, min, ptc) <- version
     pre <- option [] (char '-' >> preRelease)
     met <- option [] (char '+' >> meta)
-    return $ SemVer maj min ptc pre met) <?> "parseSV"
+    pure $ SemVer maj min ptc pre met
 
+-- using `eof` for cleaner testing – enforcing entire string is relevant
 psv :: String -> Result SemVer
 psv = parseString (parseSemVer <* eof) mempty
 
