@@ -18,10 +18,10 @@ data NumberOrString =
 type Major = Integer
 type Minor = Integer
 type Patch = Integer
-type Release = [NumberOrString]
+type PreRelease = [NumberOrString]
 type Metadata = [NumberOrString]
 
-data SemVer = SemVer Major Minor Patch Release Metadata deriving (Eq, Show)
+data SemVer = SemVer Major Minor Patch PreRelease Metadata deriving (Eq, Show)
 
 -- Making an `instance Ord SemVer` either means having an `Eq` instance which
 -- ignores metadata, or having `Ord` & `Eq` disagree. The solution here uses
@@ -34,56 +34,96 @@ instance Eq SemVerPrecedence where
          (mj, mn, pt, rl) == (mj', mn', pt', rl')
 
 instance Ord SemVerPrecedence where
-    compare s@( SemVerPrecedence (SemVer mj  mn  pt  rl  _))
-            s'@(SemVerPrecedence (SemVer mj' mn' pt' rl' _))
+    compare (SemVerPrecedence (SemVer mj  mn  pt  rl  _))
+            (SemVerPrecedence (SemVer mj' mn' pt' rl' _))
         | (mj, mn, pt) == (mj', mn', pt') = case (rl, rl') of
             -- we subvert normal list comp b/c pre-releases come EARLIER.
-            ([], _:_) -> GT
             (_:_, []) -> LT
+            ([], _:_) -> GT
             _         -> compare rl rl'
         | (mj, mn, pt) < (mj', mn', pt') = LT
         | otherwise = GT
 
-parseVersion :: Parser (Major, Minor, Patch)
-parseVersion = do
-    maj <- decimal
+-- parsing
+
+{-
+Official BNF at https://github.com/semver/semver/blob/master/semver.md#backusnaur-form-grammar-for-valid-semver-versions
+EBNF below from https://github.com/semver/semver.org/issues/59#issuecomment-393560776
+
+Version ::= VersionCore ('-' PreRelease)? ('+' Meta)?
+
+VersionCore ::= Major '.' Minor '.' Patch
+Major ::= Numeric
+Minor ::= Numeric
+Patch ::= Numeric
+PreRelease ::= PreReleaseId ('.' PreReleaseId)*
+Meta      ::= MetaId ('.' MetaId)*
+
+PreReleaseId     ::= AlphaNums | Numeric
+MetaId          ::= IdChar+
+
+Numeric    ::= '0' | ( PosNum Digit* )
+AlphaNums  ::= Digit* NonNum IdChar*
+
+IdChar ::= NonNum | Digit
+
+NonNum ::= [A-Za-z-]
+Digit  ::= '0' | PosNum
+PosNum ::= [1-9]
+-}
+
+posNum :: Parser Char
+posNum = oneOf ['1'..'9'] <?> "posNum"
+
+nonNum :: Parser Char
+nonNum = (letter <|> char '-') <?> "nonNum"
+
+idChar :: Parser Char
+idChar = (nonNum <|> digit) <?> "idChar"
+
+numeric :: Parser Integer
+numeric = ((string "0" >> pure 0) <|>
+          (do d  <- posNum
+              ds <- many digit
+              pure $ read (d:ds))) <?> "numeric"
+
+alphaNums :: Parser String
+alphaNums = (do
+    cs1 <- many digit
+    c   <- nonNum
+    cs2 <- many idChar
+    pure $ cs1 ++ [c] ++ cs2) <?> "alphaNums"
+
+metaId :: Parser NumberOrString
+metaId = (NOSS <$> some idChar) <?> "metaId"
+
+preReleaseId :: Parser NumberOrString
+preReleaseId = (try (NOSS <$> alphaNums) <|> try (NOSI <$> numeric)) <?> "preReleaseId"
+
+preRelease :: Parser PreRelease
+preRelease = sepBy1 preReleaseId (char '.') <?> "preRelease"
+
+meta :: Parser Metadata
+meta = sepBy1 metaId (char '.') <?> "meta"
+
+version :: Parser (Major, Minor, Patch)
+version = (do
+    maj <- numeric
     char '.'
-    min <- decimal
+    min <- numeric
     char '.'
-    ptc <- decimal
-    return (maj, min, ptc)
-
-alphaNums :: String
-alphaNums = ['0'..'9'] ++ ['A'..'Z'] ++ ['a'..'z'] ++ "-"
-
-parseNOSS :: Parser NumberOrString
-parseNOSS = NOSS <$> some (oneOf alphaNums)
-
-parseNOSI :: Parser NumberOrString
-parseNOSI = NOSI <$> decimal
-
-parseMetaIdentifier :: Parser NumberOrString
-parseMetaIdentifier = parseNOSS -- <|> parseNOSI -- removed b/c wrong per spec
-
-parseRelIdentifier :: Parser NumberOrString
-parseRelIdentifier = (lookAhead (noneOf "0") >> parseNOSI) <|>
-                     parseNOSS
-
-parseRelease :: Parser Release
-parseRelease = sepBy1 parseRelIdentifier (char '.')
-
-parseMetadata :: Parser Metadata
-parseMetadata = sepBy1 parseMetaIdentifier (char '.')
+    ptc <- numeric
+    pure (maj, min, ptc)) <?> "version"
 
 parseSemVer :: Parser SemVer
-parseSemVer = do
-    (maj, min, ptc) <- parseVersion
-    rel  <- option [] (char '-' >> parseRelease)
-    meta <- option [] (char '+' >> parseMetadata)
-    return $ SemVer maj min ptc rel meta
+parseSemVer = (do
+    (maj, min, ptc) <- version
+    pre <- option [] (char '-' >> preRelease)
+    met <- option [] (char '+' >> meta)
+    return $ SemVer maj min ptc pre met) <?> "parseSV"
 
 psv :: String -> Result SemVer
-psv = parseString parseSemVer mempty
+psv = parseString (parseSemVer <* eof) mempty
 
 -- Testing
 
