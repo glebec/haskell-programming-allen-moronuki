@@ -18,7 +18,7 @@ type Major = Integer
 type Minor = Integer
 type Patch = Integer
 type PreRelease = [NumberOrString]
-type Metadata = [NumberOrString]
+type Metadata = [String]
 
 data SemVer = SemVer Major Minor Patch PreRelease Metadata deriving (Eq, Show)
 
@@ -93,8 +93,8 @@ alphaNums = do
     cs2 <- many idChar
     pure $ cs1 ++ [c] ++ cs2
 
-metaId :: Parser NumberOrString
-metaId = NOSS <$> some idChar
+metaId :: Parser String
+metaId = some idChar
 
 preReleaseId :: Parser NumberOrString
 preReleaseId = (NOSS <$> try alphaNums) <|>
@@ -122,11 +122,11 @@ parseSemVer = do
     met <- option [] (char '+' >> meta)
     pure $ SemVer maj min ptc pre met
 
+-- Testing
+
 -- using `eof` for cleaner testing – enforcing entire string is relevant
 psv :: String -> Result SemVer
 psv = parseString (parseSemVer <* eof) mempty
-
--- Testing
 
 yields :: Eq a => a -> Result a -> Bool
 yields s (Success s') = s == s'
@@ -172,13 +172,13 @@ checkSemVer = hspec $ do
             , ( "1.2.3-x.8.wow.19"
               , SemVer 1 2 3 [NOSS "x", NOSI 8, NOSS "wow", NOSI 19] [] )
             , ( "0.1.0+mydata",
-                SemVer 0 1 0 [] [NOSS "mydata"] )
+                SemVer 0 1 0 [] ["mydata"] )
             , ( "0.1.0+5.my-data.000",
-                SemVer 0 1 0 [] [NOSS "5", NOSS "my-data", NOSS "000"] )
+                SemVer 0 1 0 [] ["5", "my-data", "000"] )
             , ( "1.2.3-13.0.beta+xo.08.0.wow"
               , SemVer 1 2 3
                 [NOSI 13, NOSI 0, NOSS "beta"]
-                [NOSS "xo", NOSS "08", NOSS "0", NOSS "wow"] ) ]
+                ["xo", "08", "0", "wow"] ) ]
         mapM_ specParseFails
             [ "00.0.0", "0.00.0", "0.0.00"
             , "01.0.0", "0.01.0", "0.0.01"
