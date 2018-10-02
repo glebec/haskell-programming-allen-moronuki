@@ -2,7 +2,6 @@ module Ex24_11 where
 
 import Control.Applicative
 import Text.Trifecta
-import Text.Parser.LookAhead
 import Test.Hspec
 import Data.Foldable (sequenceA_)
 import Data.Function (on)
