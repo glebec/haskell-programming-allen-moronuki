@@ -5,6 +5,7 @@ module Ex24_11_5 where
 
 import Control.Applicative
 import Control.Monad (void)
+import Data.List
 import Text.Trifecta
 import Data.Time
 import Text.RawString.QQ
@@ -18,11 +19,27 @@ import Text.RawString.QQ
 -- make a Show instance for the datatype which matches this format & write a
 -- QuickCheck Gen for it so we can test the parser.
 
-data LogEntry = LogEntry TimeOfDay String deriving (Eq, Ord, Show)
+data LogEntry = LogEntry TimeOfDay String deriving (Eq, Ord)
 
-data LogSection = LogSection Day [LogEntry] deriving (Eq, Ord, Show)
+data LogSection = LogSection Day [LogEntry] deriving (Eq, Ord)
 
-newtype Log = Log [LogSection] deriving (Eq, Show)
+newtype Log = Log [LogSection] deriving (Eq)
+
+instance Show Log where show = logToString
+instance Show LogSection where show = sectionToString
+instance Show LogEntry where show = entryToString
+
+logToString :: Log -> String
+logToString (Log ss) = intercalate "\n\n" $ map sectionToString ss
+
+sectionToString :: LogSection -> String
+sectionToString (LogSection d es) = showGregorian d ++ "\n" ++
+    intercalate "\n" (map entryToString es)
+
+entryToString :: LogEntry -> String
+entryToString (LogEntry t s) = formatTime defaultTimeLocale "%R" t ++ " " ++ s
+
+-- parser
 
 eol :: Parser ()
 eol = void (char '\n')
