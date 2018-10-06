@@ -5,6 +5,7 @@ import Text.Trifecta
 import Test.Hspec
 import Data.Foldable (sequenceA_)
 import Data.Function (on)
+import Data.Ord (comparing)
 
 -- 1. Write a parser for semver as per http://semver.org. Then write an `Ord`
 -- instance for `SemVer` that obeys the spec on the site.
@@ -27,21 +28,16 @@ data SemVer = SemVer Major Minor Patch PreRelease Metadata deriving (Eq, Show)
 -- a newtype for precedence comparison; thanks to Christoph Horst for the idea.
 newtype SemVerPrecedence = SemVerPrecedence SemVer deriving (Show)
 
+precAsTuple :: SemVerPrecedence -> (Major, Minor, Patch, Bool, PreRelease)
+precAsTuple (SemVerPrecedence (SemVer mj  mn  pt  rl  _)) =
+    -- we give earlier precedence to semver *without* pre-release identifiers
+    (mj, mn, pt, null rl, rl)
+
 instance Eq SemVerPrecedence where
-    (==) (SemVerPrecedence (SemVer mj  mn  pt  rl  _))
-         (SemVerPrecedence (SemVer mj' mn' pt' rl' _)) =
-         (mj, mn, pt, rl) == (mj', mn', pt', rl')
+    (==) = (==) `on` precAsTuple
 
 instance Ord SemVerPrecedence where
-    compare (SemVerPrecedence (SemVer mj  mn  pt  rl  _))
-            (SemVerPrecedence (SemVer mj' mn' pt' rl' _))
-        | (mj, mn, pt) == (mj', mn', pt') = case (rl, rl') of
-            -- we subvert normal list comp b/c pre-releases come EARLIER.
-            (_:_, []) -> LT
-            ([], _:_) -> GT
-            _         -> compare rl rl'
-        | (mj, mn, pt) < (mj', mn', pt') = LT
-        | otherwise = GT
+    compare = comparing precAsTuple
 
 -- parsing
 

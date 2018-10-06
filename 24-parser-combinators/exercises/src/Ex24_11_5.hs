@@ -96,6 +96,7 @@ parseLog = do
 exLog :: String
 exLog = [r|
 -- wheee a comment
+
 # 2025-02-05
 08:00 Breakfast
 09:00 Sanitizing moisture collector
@@ -104,9 +105,9 @@ exLog = [r|
 13:00 Programming
 17:00 Commuting home in rover
 
-# 2025-02-07 -- dates not nececessarily sequential
+# 2025-02-07   -- dates not nececessarily sequential
 08:00 Breakfast -- should I try skippin bfast?
 09:00 Bumped head, passed out
-13:36 Wake up, headache
+13:36 Wake up...    headache   --   whitespace
 13:37 Go to medbay
 |]
