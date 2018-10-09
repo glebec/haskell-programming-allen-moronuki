@@ -1,11 +1,11 @@
 module Ex24_11_6to9 where
 
 import Control.Applicative
-import Control.Monad (void)
 import Data.Word
 import Data.Bits
-import Data.Char (digitToInt)
+import Data.Char (digitToInt, intToDigit)
 import Data.Foldable (foldl', foldl1, toList)
+import Data.List (unfoldr, intercalate)
 import Data.Maybe (catMaybes)
 import Text.Trifecta
 import Test.Hspec
@@ -169,22 +169,52 @@ ipv6 = intToIP6 <$>
 
 -- 8. Write Show instances which render the typical formats for IPs
 
-octets :: Word32 -> [Word8]
-octets w =
-    [ fromIntegral (w `shiftR` 24)
-    , fromIntegral (w `shiftR` 16)
-    , fromIntegral (w `shiftR` 8)
-    , fromIntegral w
-    ]
+-- ed.: I prefer to keep Show instances as valid Haskell, not pretty-printing
+
+getBits :: (Num a, FiniteBits a) => Int -> Int -> a -> a
+getBits s n b
+    | s < 0 || len <= s || len <= end = 0
+    | otherwise = go 0 0
+    where end = s + n
+          len = finiteBitSize b
+          go i x = if s + i == end
+                   then x
+                   else go (i + 1) (x + if b `testBit` (s + i) then 2^i else 0)
+
+chunks :: (Integral a, FiniteBits a, Num a) => Int -> a -> [a]
+chunks s w = unfoldr cons (finiteBitSize w) where
+    cons 0 = Nothing
+    cons n = Just (getBits (n - s) s w, n - s)
 
 formatIPv4 :: IPAddress -> String
-formatIPv4 (IPAddress n) = let os = octets n in
-                           show (head os) ++ "." ++
-                           show (os !! 1) ++ "." ++
-                           show (os !! 2) ++ "." ++
-                           show (os !! 3)
+formatIPv4 (IPAddress n) = let os = chunks 8 n in
+    show (head os) ++ "." ++
+    show (os !! 1) ++ "." ++
+    show (os !! 2) ++ "." ++
+    show (os !! 3)
+
+w64toString :: Word64 -> String
+w64toString = intercalate ":" .
+              group4 .
+              fmap (intToDigit . fromIntegral) .
+              chunks 4
+
+group4 :: [a] -> [[a]]
+group4 [] = []
+group4 xs = take 4 xs : group4 (drop 4 xs)
+
+formatIPv6 :: IPAddress6 -> String
+formatIPv6 (IPAddress6 h l) = w64toString h ++ ":" ++ w64toString l
 
 -- 9. Write `ip4to6`
+
+ip4to6 :: IPAddress -> IPAddress6
+ip4to6 (IPAddress w32) = IPAddress6 0 (fromIntegral w32)
+
+ip4to6s :: String -> Maybe String
+ip4to6s ip4 = case parseString ipv4 mempty ip4 of
+    Success a -> Just $ show (ip4to6 a)
+    _         -> Nothing
 
 -- tests
 
@@ -212,6 +242,10 @@ checkIP = hspec $
         checkIPeq "0:0:0:0:0:ffff:ac10:fe01" 281473568538113
         checkIPeq "FE80:0000:0000:0000:0202:B3FF:FE1E:8329"
                   338288524927261089654163772891438416681
+        checkIPeq "FE80::0202:B3FF:FE1E:8329"
+                  338288524927261089654163772891438416681
+        checkIPeq "2001:DB8:0000:0000:8:800:200C:417A"
+                  42540766411282592856906245548098208122
         checkIPeq "2001:DB8::8:800:200C:417A"
                   42540766411282592856906245548098208122
         checkIPeq "::0.0.0.1" 1
