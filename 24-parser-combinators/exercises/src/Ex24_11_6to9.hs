@@ -147,7 +147,7 @@ ipv6simple = do
 
 ipv6preElision :: Num a => Int -> Parser a
 ipv6preElision n = do
-    h16s <- sepByUpTo h16 n colon <* string "::"
+    h16s <- (h16 `sepByUpTo` n) colon <* string "::"
     pure $ accumW16 h16s * 2^(128 - 16 * length h16s)
 
 ipv6elide32 :: Num a => Int -> Parser a
@@ -192,7 +192,7 @@ runIP6 :: String -> Result IPAddress6
 runIP6 = parseString ipv6 mempty
 
 intToIP6 :: Integral a => a -> IPAddress6
-intToIP6 n = IPAddress6 (fromIntegral n `shiftR` 64) (fromIntegral n)
+intToIP6 n = IPAddress6 (fromIntegral $ n `div` 2^64) (fromIntegral n)
 
 yields :: Eq a => a -> Result a -> Bool
 yields s (Success s') = s == s'
@@ -214,3 +214,10 @@ checkIP = hspec $
                   338288524927261089654163772891438416681
         checkIPeq "2001:DB8::8:800:200C:417A"
                   42540766411282592856906245548098208122
+        checkIPeq "::0.0.0.1" 1
+        checkIPeq "1::0.0.0.1" 5192296858534827628530496329220097
+        checkIPeq "1:0::0.0.0.1" 5192296858534827628530496329220097
+        checkIPeq "1:0:0::0.0.0.1" 5192296858534827628530496329220097
+        checkIPeq "1:0:0:0::0.0.0.1" 5192296858534827628530496329220097
+        checkIPeq "1:0:0:0:0::0.0.0.1" 5192296858534827628530496329220097
+        checkIPeq "1:0:0:0:0:0::" 5192296858534827628530496329220096
