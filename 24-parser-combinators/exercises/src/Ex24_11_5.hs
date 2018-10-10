@@ -6,9 +6,11 @@ module Ex24_11_5 where
 import Control.Applicative
 import Control.Monad (void)
 import Data.List
+import Data.Foldable (concatMap)
 import Text.Trifecta
 import Data.Time
 import Text.RawString.QQ
+import qualified Data.Map as Map
 
 -- 5. log file formats: sum time per activity, avg time per activity per day
 
@@ -19,25 +21,55 @@ import Text.RawString.QQ
 -- make a Show instance for the datatype which matches this format & write a
 -- QuickCheck Gen for it so we can test the parser.
 
-data LogEntry = LogEntry TimeOfDay String deriving (Eq, Ord)
+data LogEntry = LogEntry
+    { getTime :: TimeOfDay
+    , getEntry :: String }
+    deriving (Eq, Ord)
 
-data LogSection = LogSection Day [LogEntry] deriving (Eq, Ord)
+data LogSection = LogSection
+    { getDay :: Day
+    , getEntries :: [LogEntry] }
+    deriving (Eq, Ord)
 
-newtype Log = Log [LogSection] deriving (Eq)
+newtype Log = Log
+    { getSections :: [LogSection] }
+    deriving (Eq)
 
-instance Show Log where show = logToString
-instance Show LogSection where show = sectionToString
-instance Show LogEntry where show = entryToString
+instance Show Log where
+    show (Log ss) = intercalate "\n\n" $ map show ss
 
-logToString :: Log -> String
-logToString (Log ss) = intercalate "\n\n" $ map sectionToString ss
+instance Show LogSection where
+    show (LogSection d es) =
+        showGregorian d ++ "\n" ++
+        intercalate "\n" (map show es)
 
-sectionToString :: LogSection -> String
-sectionToString (LogSection d es) = showGregorian d ++ "\n" ++
-    intercalate "\n" (map entryToString es)
+instance Show LogEntry where
+    show (LogEntry t s) = formatTime defaultTimeLocale "%R" t ++ " " ++ s
 
-entryToString :: LogEntry -> String
-entryToString (LogEntry t s) = formatTime defaultTimeLocale "%R" t ++ " " ++ s
+-- data processing
+
+-- Sum the time spent in each activity.
+
+toDatedEntries :: Log -> [(LocalTime, String)]
+toDatedEntries (Log ss) = concatMap convert ss where
+    convert (LogSection d es) = fmap (toLocal d) es
+    toLocal d e = (LocalTime d $ getTime e, getEntry e)
+
+timePerActivity :: Log -> [(String, NominalDiffTime)]
+timePerActivity l = Map.toAscList $ foldr go Map.empty es' where
+    es = sort $ toDatedEntries l
+    es' = zip es (tail es)
+    go ((t, e), (t', _)) m = let d = diffLocalTime t' t in
+        if Map.member e m
+        then Map.adjust (+ d) e m
+        else Map.insert e d m
+
+-- Provide an alternative aggregation of the data that provides average time
+-- spent per activity per day.
+
+meanTimePerActivityPerDay :: Log -> [(String, NominalDiffTime)]
+meanTimePerActivityPerDay l@(Log ss) =
+    (fmap . fmap) (/ fromIntegral (length ss)) (timePerActivity l)
 
 -- parser
 

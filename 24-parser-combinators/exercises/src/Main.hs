@@ -16,11 +16,12 @@ import Ex24_11_10
 
 main :: IO ()
 main = do
-    demoParsers
-    demo24_3
-    demoFraction
-    demoIntEof
-    demo24_6
+    -- demoParsers
+    -- demo24_3
+    -- demoFraction
+    -- demoIntEof
+    -- demo24_6
     testParseIni
     demo24_10
     checkSemVer
+    checkIP
