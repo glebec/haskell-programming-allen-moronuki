@@ -46,4 +46,6 @@ just for simplicity. There is no semantic difference between abc_2 and "abc_2",
 or between 2.34 and "2.34". Obviously, to use a keyword as an ID, it must
 be quoted.
 
+http://hackage.haskell.org/package/haphviz-0.2.0.1/docs/Text-Dot-Types-Internal.html#t:Dot
+
 -}
