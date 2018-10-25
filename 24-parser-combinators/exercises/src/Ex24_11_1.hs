@@ -3,7 +3,7 @@ module Ex24_11_1 where
 import Control.Applicative
 import Text.Trifecta
 import Test.Hspec
-import Data.Foldable (sequenceA_)
+import Data.Foldable (traverse_, sequenceA_)
 import Data.Function (on)
 import Data.Ord (comparing)
 
@@ -154,7 +154,7 @@ specLT = specOp ((<)  `on` SemVerPrecedence) "is less than"
 checkSemVer :: IO ()
 checkSemVer = hspec $ do
     describe "parseSemVer" $ do
-        mapM_ (uncurry specParseYields)
+        traverse_ (uncurry specParseYields)
             [ ( "0.0.0",
                 SemVer 0 0 0 [] [] )
             , ( "2.1.3",
@@ -175,7 +175,7 @@ checkSemVer = hspec $ do
               , SemVer 1 2 3
                 [NOSI 13, NOSI 0, NOSS "beta"]
                 ["xo", "08", "0", "wow"] ) ]
-        mapM_ specParseFails
+        traverse_ specParseFails
             [ "00.0.0", "0.00.0", "0.0.00"
             , "01.0.0", "0.01.0", "0.0.01"
             , "0.0.0-00", "0.0.0-x.00", "0.0.0-01.x"
