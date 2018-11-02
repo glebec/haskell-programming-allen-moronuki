@@ -124,6 +124,10 @@ parseSemVer = do
 psv :: String -> Result SemVer
 psv = parseString (parseSemVer <* eof) mempty
 
+resToEither :: Result a -> Either String a
+resToEither (Success x) = Right x
+resToEither (Failure x) = Left (show x)
+
 yields :: Eq a => a -> Result a -> Bool
 yields s (Success s') = s == s'
 yields _ _ = False
@@ -135,7 +139,7 @@ pFailed _ = True
 specParseYields :: String -> SemVer -> SpecWith ()
 specParseYields s sv =
     it ("parses " ++ s ++ " as " ++ show sv) $
-        psv s `shouldSatisfy` yields sv
+        resToEither (psv s) `shouldBe` Right sv
 
 specParseFails :: String -> SpecWith ()
 specParseFails s =
