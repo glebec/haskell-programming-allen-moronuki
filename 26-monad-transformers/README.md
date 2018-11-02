@@ -1,19 +1,28 @@
 # 26. Monad Transformers
 
+For some unknown monad `m`, a monad transformer for a known monad `t` is a datatype `m t a` with functor / applicative / monad instances.
+
+- The "inner" monad is the known one, so we know how to "get at" the `a`.
+- The "outer" monad is unknown, so all we can do is use generic functions on it.
+- The hard-coded transformer part is only needed for the `Monad` instance.
+
 ```hs
 newtype MaybeT m a = MaybeT { runMaybeT :: m (Maybe a) }
 
+-- map the `a` "inside" the m-t stack
 instance Functor m => Functor (MaybeT m) where
     fmap f (MaybeT ma) = MaybeT $ (fmap . fmap) f ma
 
+-- apply an `f` "inside" an m-t stack
 instance Applicative m => Applicative (MaybeT m) where
-    pure x = MaybeT $ (pure . pure) x
-    (<*>) (MaybeT fab) (MaybeT mma) = MaybeT $ fmap (<*>) fab <*> mma
+    pure = MaybeT . pure . pure
+    (<*>) (MaybeT mtf) (MaybeT mta) = MaybeT $ fmap (<*>) mtf <*> mta
 
+-- the special part:
 instance Monad m => Monad (MaybeT m) where
-    (>>=) (MaybeT ma) f = MaybeT $ do
-        a <- ma
-        case a of
+    (>>=) (MaybeT mta) f = MaybeT $ do
+        ta <- mta
+        case ta of
             Nothing -> pure Nothing
             Just x -> runMaybeT (f x)
 ```
