@@ -18,11 +18,13 @@ instance Applicative m => Applicative (MaybeT m) where
     pure = MaybeT . pure . pure
     (<*>) (MaybeT mtf) (MaybeT mta) = MaybeT $ fmap (<*>) mtf <*> mta
 
--- the special part:
+-- the `m` and `t` don't change, but the `a` does
 instance Monad m => Monad (MaybeT m) where
     (>>=) (MaybeT mta) f = MaybeT $ do
         ta <- mta
-        case ta of
+        case ta of -- the unique part of the transformer
             Nothing -> pure Nothing
             Just x -> runMaybeT (f x)
 ```
+
+- we need a transformer for each `t` type as there is no generic way to compose two monads.
