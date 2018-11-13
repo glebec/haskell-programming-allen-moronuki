@@ -28,3 +28,25 @@ instance Monad m => Monad (MaybeT m) where
 ```
 
 - we need a transformer for each `t` type as there is no generic way to compose two monads.
+
+## Recovering an ordinary type
+
+`SomeMonadT IdentityMonad` is equivalent to `SomeMonad`. Could be useful in cases where you don't have direct access to the underlying monad.
+
+## Examples
+
+```hs
+newtype IdentityT  m a = IdentityT { runIdentityT ::  m a }
+newtype MaybeT     m a = MaybeT { runMaybeT ::        m (Maybe a) }
+newtype ExceptT  e m a = ExceptT { runExceptT ::      m (Either e a) }
+newtype ReaderT  r m a = ReaderT { runReaderT :: r -> m a }
+newtype StateT   s m a = StateT { runStateT ::   s -> m (a, s) }
+newtype WriterT  w m a = WriterT { runWriterT ::      m (a, w) }
+newtype RWST r w s m a = RWST { runRWST ::  r -> s -> m (a, s, w) }
+```
+
+All of the function form versions (e.g. `r -> m a`) _could_ be expressed with the monad on the "outside" (e.g. `m (r -> a)`). However, in practice it is more convenient to bury the monad in the return type as much as possible, since it means you can supply "vanilla" arguments.
+
+## Misc
+
+- use the `transformers` library (including `ExceptT`)
