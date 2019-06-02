@@ -17,18 +17,18 @@ instance Applicative m => Applicative (EitherT e m) where
 -- 3.
 
 instance Monad m => Monad (EitherT e m) where
-    (>>=) (EitherT mEea) f = EitherT $ do
-        x <- mEea
-        case x of
-            Left e -> pure $ Left e
-            Right a -> runEitherT $ f a
+    (>>=) (EitherT mEea) f =
+        EitherT $ mEea >>= either (pure . Left) (runEitherT . f)
+-- (>>=) (EitherT mEea) f = EitherT $ do
+--     x <- mEea
+--     case x of
+--         Left e -> pure $ Left e
+--         Right a -> runEitherT $ f a
 
 -- 4.
 
 swapEither :: Either a b -> Either b a
-swapEither e = case e of
-    Left a -> Right a
-    Right b -> Left b
+swapEither = either Right Left
 
 swapEitherT :: Functor m => EitherT e m a -> EitherT a m e
 swapEitherT (EitherT mEea) = EitherT $ swapEither <$> mEea
@@ -36,8 +36,9 @@ swapEitherT (EitherT mEea) = EitherT $ swapEither <$> mEea
 -- 5.
 
 eitherT :: Monad m => (a -> m c) -> (b -> m c) -> EitherT a m b -> m c
-eitherT cl cr (EitherT mEab) = do
-    e <- mEab
-    case e of
-        Left a -> cl a
-        Right b -> cr b
+eitherT aMc bMc (EitherT mEab) = mEab >>= either aMc bMc
+-- eitherT cl cr (EitherT mEab) = do
+--     e <- mEab
+--     case e of
+--         Left a -> cl a
+--         Right b -> cr b
