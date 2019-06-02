@@ -47,6 +47,8 @@ newtype RWST r w s m a = RWST { runRWST ::  r -> s -> m (a, s, w) }
 
 All of the function form versions (e.g. `r -> m a`) _could_ be expressed with the monad on the "outside" (e.g. `m (r -> a)`). However, in practice it is more convenient to bury the monad in the return type as much as possible, since it means you can supply "vanilla" arguments.
 
+The monad `m` is buried as deeply as possible in the argument order so that `MonadTrans` instances can be defined, e.g. `instance MonadTrans (ExceptT e)`.
+
 ## Misc
 
 - use the `transformers` library (including `ExceptT`)
