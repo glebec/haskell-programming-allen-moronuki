@@ -49,6 +49,24 @@ All of the function form versions (e.g. `r -> m a`) _could_ be expressed with th
 
 The monad `m` is buried as deeply as possible in the argument order so that `MonadTrans` instances can be defined, e.g. `instance MonadTrans (ExceptT e)`.
 
+## `MonadTrans`
+
+```hs
+class MonadTrans t where
+    -- lift from the argument monad to the constructed monad
+    lift :: Monad m => m a -> t m a
+```
+
+> _"The critical thing to realize here is that lifting means you’re embedding an expression in a larger context by adding structure that doesn’t do anything."_
+
+Note that a monad transformer "inserts" the named monad into the argument monad (e.g via `liftM` or `fmap`), but then "wraps" the result in the transformer instance (to give new `>>=` definitions etc.). For example:
+
+```hs
+instance MonadTrans MaybeT where
+    lift = MaybeT . liftM Just
+--         wrap   . inject named structure
+```
+
 ## Misc
 
 - use the `transformers` library (including `ExceptT`)
