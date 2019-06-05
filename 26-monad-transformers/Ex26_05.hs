@@ -1,6 +1,6 @@
 {-# LANGUAGE InstanceSigs #-}
 
-module Ex26_5 where
+module Ex26_05 where
 
 newtype StateT s m a = StateT { runStateT :: s -> m (a,s) }
 

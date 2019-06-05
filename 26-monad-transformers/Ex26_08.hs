@@ -1,4 +1,4 @@
-module Ex26_8 where
+module Ex26_08 where
 
 import Control.Monad.Trans.Except
 import Control.Monad.Trans.Maybe

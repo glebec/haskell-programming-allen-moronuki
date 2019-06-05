@@ -67,6 +67,32 @@ instance MonadTrans MaybeT where
 --         wrap   . inject named structure
 ```
 
+## `MonadIO`
+
+`liftIO` designed for lifting through an arbitrarily large stack of monad transformers whose outermost layer is `IO`.
+
+```hs
+-- Control.Monad.IO.Class
+class (Monad m) => MonadIO m where
+    liftIO :: IO a -> m a
+```
+
+Sample code snippets:
+
+```hs
+-- example instance
+instance MonadIO m => MonadIO (EitherT e m) where
+    liftIO = lift . liftIO
+
+-- a program containing a reader for a state func yielding possible exceptions
+liftIO :: IO a -> ExceptT e (StateT s (ReaderT r IO)) a
+```
+
+Laws
+
+- `liftIO . return = return`
+- `liftIO (m >>= f) = liftIO m >>= (liftIO . f)`
+
 ## Misc
 
 - use the `transformers` library (including `ExceptT`)

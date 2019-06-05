@@ -1,4 +1,4 @@
-module Ex26_3 where
+module Ex26_03 where
 
 newtype EitherT e m a = EitherT { runEitherT :: m (Either e a) }
 

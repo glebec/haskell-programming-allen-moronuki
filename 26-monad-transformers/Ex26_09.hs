@@ -1,11 +1,11 @@
 {-# LANGUAGE InstanceSigs #-}
 {-# LANGUAGE TupleSections #-}
 
-module Ex26_9 where
+module Ex26_09 (module Ex26_05) where
 
 import Control.Monad.Trans.Class
-import Ex26_3 (EitherT(..))
-import Ex26_5 (StateT(..))
+import Ex26_03 (EitherT(..))
+import Ex26_05 (StateT(..))
 
 -- newtype EitherT e m a = EitherT { runEitherT :: m (Either e a) }
 
