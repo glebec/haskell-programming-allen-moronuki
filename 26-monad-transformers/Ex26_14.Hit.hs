@@ -28,14 +28,14 @@ bumpBoomp
     -> M.Map Text Integer
     -> (M.Map Text Integer, Integer)
 bumpBoomp k m =
-    let m' = M.insertWith (+) k 1 m
-        v = fromMaybe 0 (M.lookup k m')
-    in  (m', v)
+    case M.lookup k m of
+        Nothing -> (M.insert k 1 m, 1)
+        Just a  -> (M.adjust (+1) k m, a + 1)
 
 app :: Scotty ()
 app =
     get "/:key" $ do
-        (unprefixed :: Text) <- param "key"
+        unprefixed <- param "key"
         Config counts prefix <- lift ask
         -- counts <- lift $ asks counts
         -- prefix <- lift $ asks prefix
