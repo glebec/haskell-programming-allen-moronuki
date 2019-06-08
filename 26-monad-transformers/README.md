@@ -96,3 +96,9 @@ Laws
 ## Misc
 
 - use the `transformers` library (including `ExceptT`)
+- how to actually read the env from a reader stack, `lift` these:
+
+```hs
+ask  :: Monad m =>             ReaderT r m r
+asks :: Monad m => (r -> a) -> ReaderT r m a
+```
