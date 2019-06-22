@@ -1,9 +1,9 @@
 # 26. Monad Transformers
 
-For some unknown monad `m`, a monad transformer for a known monad `t` is a datatype `m t a` with functor / applicative / monad instances.
+For some unknown monad `m`, a monad transformer named after a known monad `t` is a datatype `m t a` with functor / applicative / monad instances. Putting it another way, a monad transformer `KnownT` deals with `Known` embedded in an unknown monad.
 
-- The "inner" monad is the known one, so we know how to "get at" the `a`.
-- The "outer" monad is unknown, so all we can do is use generic functions on it.
+- The "inner" monad is the known one, so we know how to "get at" the `a` (e.g. by casing on `Just` or `Nothing`).
+- The "outer" monad is unknown, so all we can do is use generic functions like `bind` on it.
 - The hard-coded transformer part is only needed for the `Monad` instance.
 
 ```hs
@@ -27,7 +27,7 @@ instance Monad m => Monad (MaybeT m) where
             Just x -> runMaybeT (f x)
 ```
 
-- we need a transformer for each `t` type as there is no generic way to compose two monads.
+- we need a transformer for each known `t` type as there is no generic way to compose two monads.
 
 ## Recovering an ordinary type
 
