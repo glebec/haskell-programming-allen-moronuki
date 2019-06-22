@@ -95,10 +95,24 @@ Laws
 
 ## Misc
 
-- use the `transformers` library (including `ExceptT`)
-- how to actually read the env from a reader stack, `lift` these:
+Use the `transformers` library (including `ExceptT`)
+
+### ReaderT
 
 ```hs
 ask  :: Monad m =>             ReaderT r m r
 asks :: Monad m => (r -> a) -> ReaderT r m a
+```
+
+### StateT
+
+```hs
+-- Fetch the current value of the state within the monad.
+get :: Monad m => StateT s m s
+
+-- modify f is an action that updates the state to the result of applying f to the current state.
+modify :: Monad m => (s -> s) -> StateT s m ()
+
+-- Evaluate a state computation with the given initial state and return the final value, discarding the final state.
+evalStateT :: Monad m => StateT s m a -> s -> m a
 ```
