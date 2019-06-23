@@ -5,6 +5,8 @@
 - `seq` to create evaluation dependencies
 - `:sprint` in GHCi
 - `import Debug.Trace` -> `trace :: String -> a -> a`
+- `data Foo = Foo Int !Int` & `foo !x = 1`
+- `foo ~(a, b) = a`
 
 This results in two traces:
 

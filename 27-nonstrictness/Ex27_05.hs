@@ -1,4 +1,4 @@
-module Ex27_5 where
+module Ex27_05 where
 
 p1 = const 1 undefined
 -- (\a b -> a) 1 undefined
