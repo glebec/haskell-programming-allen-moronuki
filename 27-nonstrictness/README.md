@@ -1,7 +1,30 @@
 # 27. Nonstrictness
 
+## Tools
+
+- `seq` to create evaluation dependencies
+- `:sprint` in GHCi
+- `import Debug.Trace` -> `trace :: String -> a -> a`
+
+This results in two traces:
+
+```hs
+howManyTimes' =
+    let onePlusOne =
+        trace "I got eval'd" (1 + 1)
+    in (2 + onePlusOne) + (3 + onePlusOne)
+```
+
+## Laziness
+
 - truly lazy languages memoize function applications
 - nonstrict evaluation does not specify if results are memoized or not
+
+Term          | Definition
+--------------|-----------
+Call by value | argument expressions evaluated before entering function, expressions for bindings evaluated before creating binding. AKA strict.
+Call by name  | expressions can be arguments to a function or targets for binding without evaluating. Includes nonstrict.
+Call by need  | Same as call by name, but expressions only evaluated once.
 
 ## Haskell, Core Etc.
 
@@ -47,15 +70,73 @@ noProblem =
     in snd z -- evaluates fine
 ```
 
-This example will throw, and before printing "hi":
+This example will throw, but only after the `getLine` happens:
+
+```hs
+hypo' :: IO ()
+hypo' = do
+    let x :: Integer
+        x = undefined
+    s <- getLine
+    case x `seq` s of -- throws after getLine
+        "hi" -> print x
+        _ -> putStrLn "hello"
+```
+
+This example will throw, and before the `getLine` happens:
 
 ```hs
 hypo'' :: IO ()
 hypo'' = do
     let x :: Integer
         x = undefined
-    s <- x `seq` getLine -- throws here
+    s <- x `seq` getLine -- throws before getLine
     case s of
         "hi" -> print x
         _ -> putStrLn "hello"
+```
+
+## Refutable vs. irrefutable patterns
+
+Matching on `_` or a variable like `a` is irrefutable. Lazy patterns via `~` are also irrefutable. They are useful for unpacking products that might not get used.
+
+```hs
+lazyPattern :: (a, b) -> String
+lazyPattern ~(a, b) = const "Cousin It" a
+```
+
+## `BangPatterns`
+
+```hs
+{-# LANGUAGE BangPatterns #-}
+
+-- forced arguments
+
+banging :: Bool -> Int
+banging !b = 1 -- basically same as: banging b = b `seq` 1
+
+-- strict data
+
+data Foo = Foo Int !Int -- evals 2nd arg when Foo is eval'd to WHNF
+
+first, second :: Foo -> Int
+first  (Foo x _) = x
+second (Foo _ y) = y
+
+second (Foo undefined 1) -- OK
+second (Foo 1 undefined) -- throws
+first  (Foo 1 undefined) -- throws
+```
+
+## `Strict` / `ScrictData`
+
+Basically applies `seq` to everything in the module.
+
+```hs
+{-# LANGUAGE Strict #-}
+
+module LazyInHostileTerritory where
+
+willForce x = 1
+willNotForce ~x = 1
 ```
