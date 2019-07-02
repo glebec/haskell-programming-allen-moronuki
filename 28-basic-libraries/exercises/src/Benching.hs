@@ -1,4 +1,4 @@
-module Main where
+module Benching where
 
 import Criterion.Main
 
@@ -28,8 +28,8 @@ xs !? n
 myList :: [Int]
 myList = [1..9999]
 
-main :: IO ()
-main = defaultMain
+benching :: IO ()
+benching = defaultMain
     [ bench "index list 9999"
       $ whnf (myList !!) 9998
     , bench "index list maybe index 9999"
