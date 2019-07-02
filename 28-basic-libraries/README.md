@@ -43,3 +43,4 @@ hp2ps whatever.hp # convert hp -> ps file
 - `Map`: a binary tree using ordered keys
 - `Set`: same as `Map` but without the vals
 - `HashMap` / `IntMap` / `Vector`: faster DSs using `Int` keys
+- `Seq`: finger tree, cheap front/back append
