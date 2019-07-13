@@ -16,7 +16,7 @@ Tip, have heard that for big blocks of text one should use `Data.Text`, not stri
 
 In a full Stack project, we'd put `main` in a `Main.hs` file.
 
-It seems that for `IO ()` ops you use `>>` rather than `>>=` to chain. Or you can use `do` notation.
+It seems that for `IO ()` ops you use `>>` rather than `>>=` to chain. Or you can use `do` notation. (_Addendum: interesting to look back on these notes years later and spot misunderstandings like this; `>>` is of course sequencing monads without using the prior result, while `>>=` is normal monadic bind which can access the prior result._)
 
 ## Concatenation
 
