@@ -2,6 +2,7 @@
 
 > module Chapter10Exercises where
 > import Data.Time
+> import Data.Maybe
 
 
 \section{10.5 Understanding folds}
@@ -59,10 +60,19 @@ Exercise: Database Processing
 
 1. Write a function that filters for `DbDate` values and returns a list of the `UTCTime` values inside them.
 
+Original version when I first did this chapter:
+
+> -- filterDbDate :: [DatabaseItem] -> [UTCTime]
+> -- filterDbDate = map (\(DbDate u) -> u) . filter isDbDate
+> --               where isDbDate (DbDate _) = True
+> --                     isDbDate _          = False
+
+Re-written much later to use `mapMaybe :: (a -> Maybe b) -> [a] -> [b]`:
+
 > filterDbDate :: [DatabaseItem] -> [UTCTime]
-> filterDbDate = map (\(DbDate u) -> u) . filter isDbDate
->                where isDbDate (DbDate _) = True
->                      isDbDate _          = False
+> filterDbDate = mapMaybe getUTC where
+>     getUTC (DbDate u) = Just u
+>     getUTC _ = Nothing
 
 2. Write a function that filters for `DbNumber` values and returns a list of the Integer values inside them.
 
