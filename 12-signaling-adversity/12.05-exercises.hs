@@ -143,6 +143,9 @@ lefts' = foldr takeLeft []
 -- List comprehensions can use pattern matching!
 -- lefts xs = [x | Left x <- xs]
 
+-- Addendum: and since [] is the fail case for list monad, we can do:
+-- lefts xs = do { Left x <- xs; pure x }
+
 -- 2.
 rights' :: [Either a b] -> [b]
 rights' = foldr takeRight []
