@@ -1,19 +1,33 @@
 # 28. Basic Libraries
 
-- Compile with `-O` or `-O2` to optimize (`stack ghc -- -O2 bench.hs`).
-- Benchmarking with `criterion`.
+## Benchmarking
+
+- Using the `criterion` package
+  - `defaultMain [ bench "label" $ whnf funcToTest arg ]`
+- Compile with `-O` or `-O2` to optimize
+  - `stack ghc -- -O2 YOUR_MODULE.hs` for a single file
+  - `stack build --ghc-options -O2` for a stack project
+- Execute the build
+  - `./EXECUTABLE_NAME` for a single file
+  - `stack exec NAME_OF_EXEC` for a stack project
 
 ## Profiling
 
-See [here](https://downloads.haskell.org/~ghc/latest/docs/html/users_guide/profiling.html) for more info.
+- See [here](https://downloads.haskell.org/~ghc/latest/docs/html/users_guide/profiling.html) for more info.
+- From [this SO thread](https://stackoverflow.com/questions/32123475/profiling-builds-with-stack), use `--work-dir .stack-work-profile` to avoid re-compilation between profile vs. regular build.
+
+```sh
+stack --work-dir .stack-work-profile build --profile --ghc-options -O2
+stack --work-dir .stack-work-profile exec -- NAME_OF_EXEC # +RTS -hc # or -P
+```
+
+If execution takes way too long, you need to annotate your cost centers / use a more restrictive profiling strategy than "profile everything".
 
 ### Time
 
 ```sh
-stack ghc -- -prof -fprof-auto -rtsopts -O2 whatever.hs # compile
-
+stack ghc -- -prof -fprof-auto -rtsopts -O2 whatever.hs # compile a single file
 ./whatever +RTS -P # run and generate profile
-
 cat whatever.prof # view profile results
 ```
 
@@ -27,14 +41,13 @@ cat whatever.prof # view profile results
 
 ```sh
 ./whatever +RTS -hc -p # run and generate profile
-
 hp2ps whatever.hp # convert hp -> ps file
 ```
 
 - `-hc`: breaks down graph by cost-centre stack
 - `hp2ps`: utility for converting `hp` files to PostScript
 
-## Constant Applicative Forms (CAFs)
+### Constant Applicative Forms (CAFs)
 
 > _…expressions that have no free variables and are held in memory to be shared with all other expressions in a module._
 
@@ -49,14 +62,6 @@ hp2ps whatever.hp # convert hp -> ps file
 
 - `Vector`: sliced array, can be boxed (pointers) or unboxed (if Bool / Char / newtype of such / etc.); see `//` for batch updating
 - Mutable vectors, `Control.Monad.ST`
-
-```sh
-stack --work-dir .stack-work-profile build --profile --ghc-options -O2
-
-stack --work-dir .stack-work-profile exec -- benching +RTS -hc
-```
-
-- `--work-dir .stack-work-profile` avoid recompilation between artifacts
 
 ## `String`, `Text`, `ByteText`
 
