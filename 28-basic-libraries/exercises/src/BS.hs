@@ -1,6 +1,6 @@
 {-# LANGUAGE OverloadedStrings #-}
 
-module BS where
+module BS (demoBS) where
 
 import qualified Data.Text.IO as TIO
 import qualified Data.Text.Encoding as TE
@@ -13,8 +13,8 @@ input = "123"
 compressed :: BL.ByteString
 compressed = GZip.compress input
 
-main :: IO ()
-main = do
+demoBS :: IO ()
+demoBS = do
     TIO.putStrLn $ TE.decodeUtf8 (s input)
     TIO.putStrLn $ TE.decodeUtf8 (s $ GZip.decompress compressed)
     TIO.putStrLn $ TE.decodeUtf8 (s compressed) -- fails (as intended for demo)

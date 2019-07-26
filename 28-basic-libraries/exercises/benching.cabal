@@ -24,3 +24,9 @@ executable benching
                      , text
                      , bytestring
                      , zlib
+  other-modules:       BS
+                     , Benching
+                     , Ex28_06
+                     , Ex28_08
+                     , Ex28_10
+                     , Seqs
