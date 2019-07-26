@@ -44,3 +44,23 @@ hp2ps whatever.hp # convert hp -> ps file
 - `Set`: same as `Map` but without the vals
 - `HashMap` / `IntMap` / `Vector`: faster DSs using `Int` keys
 - `Seq`: finger tree, cheap front/back append
+
+## `vector`
+
+- `Vector`: sliced array, can be boxed (pointers) or unboxed (if Bool / Char / newtype of such / etc.); see `//` for batch updating
+- Mutable vectors, `Control.Monad.ST`
+
+```sh
+stack --work-dir .stack-work-profile build --profile --ghc-options -O2
+
+stack --work-dir .stack-work-profile exec -- benching +RTS -hc
+```
+
+- `--work-dir .stack-work-profile` avoid recompilation between artifacts
+
+## `String`, `Text`, `ByteText`
+
+- `text`, `bytestring`, `utf8-string` libraries
+- frequently used with `{-# LANGUAGE OverloadedStrings #-}`
+- `unpack` to convert Text to String, `pack` for vice-versa
+- do not use `char8`

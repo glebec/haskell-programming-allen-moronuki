@@ -45,5 +45,6 @@ cabal.sandbox.config
 *.hp
 *.eventlog
 .stack-work/
+.stack-work-profile/
 cabal.project.local
 .HTF/
