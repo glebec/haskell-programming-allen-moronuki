@@ -24,9 +24,12 @@ executable benching
                      , text
                      , bytestring
                      , zlib
+                     , transformers
+                     , random
   other-modules:       BS
                      , Benching
                      , Ex28_06
                      , Ex28_08
-                     , Ex28_10
+                     , Ex28_10_DL
+                     , Ex28_10_Q
                      , Seqs

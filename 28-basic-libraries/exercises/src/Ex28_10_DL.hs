@@ -1,4 +1,4 @@
-module Ex28_10 where
+module Ex28_10_DL where
 
 import Criterion.Main (defaultMain, whnf, bench)
 
@@ -56,8 +56,8 @@ constructDList i = toList $ go i empty
     where go 0 xs = xs
           go n xs = go (n - 1) (singleton n `append` xs)
 
-ex28_10 :: IO ()
-ex28_10 = defaultMain
+ex28_10_DL :: IO ()
+ex28_10_DL = defaultMain
     [ bench "concat list"  $ whnf schlemiel 123456
     , bench "concat dlist" $ whnf constructDList 123456
     ]
