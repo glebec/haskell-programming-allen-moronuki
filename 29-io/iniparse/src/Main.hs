@@ -2,7 +2,7 @@ module Main where
 
 import System.Exit (die)
 import System.Environment (getArgs)
-import System.FilePath (combine)
+import System.FilePath (combine, takeExtension)
 import System.Directory (listDirectory, makeAbsolute)
 import Text.Trifecta (Result, parseString)
 import qualified Data.Map as M
@@ -19,7 +19,8 @@ main = do
         (p:_) -> makeAbsolute p
     putStrLn path
     fileNames <- listDirectory path
-    let absFileNames = combine path <$> fileNames
+    let iniFileNames = filter ((== ".ini") . takeExtension) fileNames
+        absFileNames = combine path <$> iniFileNames
     files <- traverse readFile absFileNames
     let result = M.fromList $ zip fileNames (ini <$> files)
     print result
