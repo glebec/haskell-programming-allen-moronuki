@@ -8,10 +8,12 @@ Book suggestions:
 
 ```haskell
 System.Environment.getArgs :: IO [String]
+System.IO.hWaitForInput :: Handle -> Int -> IO Bool
 System.IO.hPutStr  :: Handle -> String -> IO () -- or just use `putStr`
 System.IO.hGetChar :: Handle -> IO Char -- or just use `getChar`
 System.IO.stdout   :: Handle
 System.IO.stdin    :: Handle
+System.IO.stderr   :: Handle
 ```
 
 Additional helpers that are useful:

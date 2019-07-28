@@ -1,8 +1,8 @@
 module Main where
 
-import Control.Monad (forever, when)
+import Control.Monad (forever, when, unless)
 import System.Environment (getArgs)
-import System.IO (hPutStr, hGetChar, stdout, stdin, isEOF)
+import System.IO (hPutStr, hGetChar, hWaitForInput, stdout, stdin, isEOF)
 import System.Exit (die, exitSuccess)
 import Vigenere (Key(..), vigenere, unVigenere)
 
@@ -27,6 +27,8 @@ main = do
     let vig = case mode of
               Encrypt -> vigenere key
               Decrypt -> unVigenere key
+    ready <- hWaitForInput stdin 1000
+    unless ready $ die "Timeout: no input received"
     forever $ do
         done <- isEOF
         when done exitSuccess
