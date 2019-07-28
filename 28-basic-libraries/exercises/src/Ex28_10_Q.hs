@@ -37,22 +37,22 @@ dequeueL (LQ (x:xs)) = Just (x, LQ xs)
 
 data Command = Enqueue | Dequeue deriving (Eq, Show)
 
-commandStream :: [Command]
-commandStream = toCommand <$> randoms (mkStdGen 237846) where
+commandStream :: Int -> [Command]
+commandStream seed = toCommand <$> randoms (mkStdGen seed) where
     toCommand True = Enqueue
     toCommand False = Dequeue
 
-listQ :: Int -> LQ ()
-listQ rounds = foldr go (LQ []) commands where
-    commands = take rounds commandStream
+listQ :: (Int, Int) -> LQ ()
+listQ (seed, rounds) = foldr go (LQ []) commands where
+    commands = take rounds (commandStream seed)
     go Enqueue q = enqueueL () q
     go Dequeue q = case dequeueL q of
         Nothing -> q
         Just (_, q') -> q'
 
-okasakiQ :: Int -> Queue ()
-okasakiQ rounds = foldr go (Queue [] []) commands where
-    commands = take rounds commandStream
+okasakiQ :: (Int, Int) -> Queue ()
+okasakiQ (seed, rounds) = foldr go (Queue [] []) commands where
+    commands = take rounds (commandStream seed)
     go Enqueue q = enqueue () q
     go Dequeue q = case dequeue q of
         Nothing -> q
@@ -60,6 +60,6 @@ okasakiQ rounds = foldr go (Queue [] []) commands where
 
 ex28_10_Q :: IO ()
 ex28_10_Q =
-    defaultMain [ bench "List Queue" $ whnf listQ 1000 -- 21.62 μs
-                , bench "Okasaki Queue" $ whnf okasakiQ 1000 -- 6.093 μs
+    defaultMain [ bench "List Queue" $ whnf listQ (38746, 1000) -- 165.7 μs
+                , bench "Okasaki Queue" $ whnf okasakiQ (38746, 1000) -- 134.8 μs
                 ]
