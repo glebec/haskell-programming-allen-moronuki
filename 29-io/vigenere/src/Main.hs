@@ -29,8 +29,9 @@ main = do
               Decrypt -> unVigenere key
     ready <- hWaitForInput stdin 1000
     unless ready $ die "Timeout: no input received"
-    forever $ do
-        done <- isEOF
-        when done exitSuccess
-        c <- hGetChar stdin -- HLint suggests `getChar`
-        hPutStr stdout $ vig [c] -- HLint suggests `putStr`
+    interact vig
+    -- forever $ do
+    --     done <- isEOF
+    --     when done exitSuccess
+    --     c <- hGetChar stdin -- HLint suggests `getChar`
+    --     hPutStr stdout $ vig [c] -- HLint suggests `putStr`
