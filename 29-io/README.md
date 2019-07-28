@@ -24,6 +24,7 @@ System.Exit.die :: String -> IO a
 System.Exit.exitSuccess :: IO a
 Control.Monad.forever :: Applicative f => f a -> f b
 Control.Monad.when :: Applicative f => Bool -> f () -> f ()
+Control.Monad.unless :: Applicative f => Bool -> f () -> f ()
 ```
 
 Or one of the "easy" ways:

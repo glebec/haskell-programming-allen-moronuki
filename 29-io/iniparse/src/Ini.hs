@@ -1,7 +1,7 @@
 {-# LANGUAGE OverloadedStrings #-}
 -- {-# LANGUAGE QuasiQuotes #-}
 
-module Ini (parseIni) where
+module Ini (parseIni, Config) where
 
 -- INI format parsing
 

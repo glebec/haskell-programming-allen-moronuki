@@ -24,3 +24,5 @@ executable iniparse
                      , containers
                      , text
                      , raw-strings-qq
+                     , directory
+                     , filepath
