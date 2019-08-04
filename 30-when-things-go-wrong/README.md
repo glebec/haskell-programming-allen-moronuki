@@ -1,6 +1,6 @@
 # 30. When Things Go Wrong
 
-A polymorphic and extensible exception type.
+A polymorphic and [extensible](https://simonmar.github.io/bib/papers/ext-exceptions.pdf) exception type.
 
 ```hs
 class (Typeable e, Show e) => Exception e where
