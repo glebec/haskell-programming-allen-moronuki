@@ -41,3 +41,4 @@ executable insert
   build-depends:       base >= 4.7 && < 5
                      , text
                      , sqlite-simple
+  other-modules:       User
