@@ -32,3 +32,12 @@ executable fingerd
                      , raw-strings-qq
                      , sqlite-simple
                      , text
+
+executable insert
+  ghc-options:         -Wall
+  hs-source-dirs:      src
+  main-is:             InsertUser.hs
+  default-language:    Haskell2010
+  build-depends:       base >= 4.7 && < 5
+                     , text
+                     , sqlite-simple
