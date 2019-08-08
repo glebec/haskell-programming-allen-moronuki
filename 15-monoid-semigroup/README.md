@@ -23,9 +23,11 @@ Instance  | Identity  | Operation
 `Sum`     | 0         | `(+)`
 `Product` | 1         | `(*)`
 `All`     | `True`    | `&&`
-`Any`     | `False`   | `||`
+`Any`     | `False`   | `¦¦`*
 `First`   | `Nothing` | take 1st `Just`
 `Last`    | `Nothing` | take last `Just`
+
+* `¦` substituted for `|` because of markdown table formatting limitations
 
 ## Newtype Aside
 
